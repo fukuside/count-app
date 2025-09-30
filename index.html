@@ -90,6 +90,14 @@
 
     </div>
 
+    <!-- ===== ここから追加 ===== -->
+    <div id="logo-container" class="fixed bottom-4 right-4 flex items-center space-x-2 opacity-75">
+        <img src="./logo2.jpg" alt="ロゴ" class="h-10 w-10 rounded-full object-cover">
+        <p class="text-xs text-gray-600 font-semibold">一般社団法人福祉でつながる会</p>
+    </div>
+    <!-- ===== ここまで追加 ===== -->
+
+
     <script>
         // DOM要素の取得
         const settingsScreen = document.getElementById('settings-screen');
@@ -106,6 +114,7 @@
         const photoInput = document.getElementById('photo-input');
         const photoPreview = document.getElementById('photo-preview');
         const displayPhoto = document.getElementById('display-photo');
+        const logoContainer = document.getElementById('logo-container');
         
         let remainingCount = 0;
 
@@ -167,6 +176,7 @@
                 setupMainScreen(title, count, photoSrc);
                 settingsScreen.classList.add('hidden');
                 mainScreen.classList.remove('hidden');
+                logoContainer.classList.add('hidden'); // メイン画面ではロゴを非表示
             }
         });
         
@@ -227,6 +237,7 @@
         resetBtn.addEventListener('click', () => {
             mainScreen.classList.add('hidden');
             settingsScreen.classList.remove('hidden');
+            logoContainer.classList.remove('hidden'); // 設定画面に戻ったらロゴを再表示
             titleInput.value = ''; // タイトルをクリア
             photoInput.value = ''; // 写真選択をクリア
             photoPreview.src = ''; // プレビューをクリア
@@ -238,6 +249,7 @@
             finishMessage.classList.add('hidden');
             mainScreen.classList.add('hidden');
             settingsScreen.classList.remove('hidden');
+            logoContainer.classList.remove('hidden'); // 設定画面に戻ったらロゴを再表示
             titleInput.value = '';
             photoInput.value = ''; // 写真選択をクリア
             photoPreview.src = ''; // プレビューをクリア
