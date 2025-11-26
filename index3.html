@@ -129,26 +129,106 @@
         
         let remainingCount = 0;
 
-        // 番号付きの車のSVGアイコンを生成する関数
-        function createCarSVG(number) {
-            return `
-                <svg class="w-20 h-20 sm:w-24 sm:h-24" viewBox="0 0 100 100" fill="currentColor">
-                    <path d="M95,55 c-3,0-5,2-5,5v10H10V60c0-3-2-5-5-5s-5,2-5,5v15c0,3,2,5,5,5h90c3,0,5-2,5-5V60C100,57,98,55,95,55z"/>
-                    <path d="M85,30H65c-3,0-5-2-5-5s2-5,5-5h20c3,0,5,2,5,5S88,30,85,30z"/>
-                    <path d="M89.6,33.2C85.1,30,80.5,30,76,30H55c-1.1,0-2-0.9-2-2V12c0-3-2-5-5-5H28c-3,0-5,2-5,5v16c0,1.1-0.9,2-2,2H10 c-3,0-5,2-5,5s2,5,5,5h12v5h68.4C90.2,42,89.5,37.3,89.6,33.2z"/>
-                    <circle cx="25" cy="75" r="10"/>
-                    <circle cx="75" cy="75" r="10"/>
-                    <text x="50%" y="53%" dominant-baseline="middle" text-anchor="middle" font-size="28" font-weight="bold" fill="#ffffff" stroke="#333" stroke-width="1">${number}</text>
-                </svg>
-            `;
-        }
+        // 番号付きのゆるかわ車のSVGアイコンを生成する関数
+function createCarSVG(number) {
+  return `
+  <svg viewBox="0 0 140 100" class="w-20 h-20 sm:w-24 sm:h-24">
+    <g stroke-linecap="round" stroke-linejoin="round">
 
-        // 車の色パターン
-        const carColors = [
-            'text-red-500', 'text-blue-500', 'text-green-500', 'text-yellow-500', 'text-purple-500',
-            'text-pink-500', 'text-indigo-500', 'text-teal-500', 'text-cyan-500', 'text-lime-500'
-        ];
-        
+      <!-- 車のボディ（手描きっぽいゆるい形） -->
+      <path
+        d="M18 60
+           Q20 40 40 35
+           H85
+           Q105 35 120 55
+           Q124 60 122 70
+           Q120 82 108 84
+           H32
+           Q20 82 18 72
+           Q16 66 18 60
+           Z"
+        fill="currentColor"
+        opacity="0.9"
+      />
+
+      <!-- 屋根ライン（currentColorで統一） -->
+      <path
+        d="M40 35
+           Q55 18 75 18
+           Q95 18 108 35"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="4"
+        opacity="0.35"
+      />
+
+      <!-- フロントガラス枠 -->
+      <rect
+        x="47"
+        y="30"
+        width="46"
+        height="24"
+        rx="10"
+        ry="10"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="2.2"
+        opacity="0.7"
+      />
+
+      <!-- キャラクター風の大きい目 -->
+      <circle cx="60" cy="43" r="9" fill="#ffffff" />
+      <circle cx="80" cy="43" r="9" fill="#ffffff" />
+      <circle cx="60" cy="43" r="4.8" fill="#333333" />
+      <circle cx="80" cy="43" r="4.8" fill="#333333" />
+
+      <!-- くち -->
+      <path
+        d="M63 53 Q70 57 77 53"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="2.8"
+      />
+
+      <!-- タイヤ -->
+      <circle cx="42" cy="80" r="9.5" fill="#555555" />
+      <circle cx="96" cy="80" r="9.5" fill="#555555" />
+
+      <!-- タイヤ中央のハイライト -->
+      <circle cx="42" cy="80" r="4.5" fill="#e5e5e5" opacity="0.85" />
+      <circle cx="96" cy="80" r="4.5" fill="#e5e5e5" opacity="0.85" />
+
+      <!-- 番号（白フチ付きでしっかり見える） -->
+      <text
+        x="50%"
+        y="78%"
+        text-anchor="middle"
+        font-size="32"
+        font-weight="bold"
+        fill="#ffffff"
+        stroke="#000000"
+        stroke-width="2"
+        style="font-family: 'M PLUS Rounded 1c', sans-serif;"
+      >
+        ${number}
+      </text>
+    </g>
+  </svg>
+  `;
+}
+
+
+const carColors = [
+  'text-sky-300',
+  'text-emerald-300',
+  'text-amber-300',
+  'text-pink-300',
+  'text-violet-300',
+  'text-lime-300',
+  'text-orange-300',
+  'text-teal-300'
+];
+  
         // 写真が選択されたときの処理
         photoInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
