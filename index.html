@@ -5,17 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>あとなんかい？アプリ</title>
 
-  <body class="bg-amber-50">
-
-  <!-- ロゴ（ヘッダー） -->
-  <header class="pt-10 mb-4 flex justify-center">
-    <img
-      src="./images/logo-atonankai-header.png"
-      alt="あとなんかい？アプリ ロゴ"
-      class="h-12 logo-atonankai-header"
-    >
-  </header>
-
   <!-- Webアプリアイコン -->
   <link rel="icon" type="image/png" sizes="192x192"
         href="./images/icons/atonankai-192.png">
@@ -24,57 +13,76 @@
   <link rel="icon" type="image/png" sizes="512x512"
         href="./images/icons/atonankai-512.png">
 
-    <!-- PWA用（必要なら） -->
-    <link rel="manifest" href="./manifest.webmanifest">
+  <!-- PWA用（必要なら） -->
+  <link rel="manifest" href="./manifest.webmanifest">
 
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-PZZ71NWCL2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PZZ71NWCL2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-PZZ71NWCL2');
+  </script>
 
-  gtag('config', 'G-PZZ71NWCL2');
-</script>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'M PLUS Rounded 1c', 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent; /* スマホタップ時のハイライトを無効化 */
-        }
-        .car-icon {
-            transition: transform 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.8s ease-out;
-            cursor: pointer;
-        }
-        .car-icon.departing {
-            transform: translateX(150vw) rotate(10deg);
-            opacity: 0;
-        }
-        .hidden {
-            display: none;
-        }
-        .finish-popup {
-            animation: bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        @keyframes bounce-in {
-            0% {
-                opacity: 0;
-                transform: scale(0.3);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-    </style>
+  <!-- フォント -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    body {
+      font-family: 'M PLUS Rounded 1c', 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent; /* スマホタップ時のハイライトを無効化 */
+    }
+    .car-icon {
+      transition: transform 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.8s ease-out;
+      cursor: pointer;
+    }
+    .car-icon.departing {
+      transform: translateX(150vw) rotate(10deg);
+      opacity: 0;
+    }
+    .hidden {
+      display: none;
+    }
+    .finish-popup {
+      animation: bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes bounce-in {
+      0% {
+        opacity: 0;
+        transform: scale(0.3);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
 </head>
-<body class="bg-orange-50 text-gray-800 flex items-center justify-center min-h-screen">
 
-    <div id="app-container" class="w-full max-w-md mx-auto p-4">
+<body class="bg-orange-50 text-gray-800 min-h-screen">
+  <!-- 全体レイアウトラッパー -->
+  <div class="min-h-screen flex flex-col items-center justify-center px-4">
+
+    <!-- ロゴ（ヘッダー） -->
+    <header class="mb-6">
+      <img
+        src="./images/logo/logo-atonankai-header.png"
+        alt="あとなんかい？アプリ ロゴ"
+        class="h-12 mx-auto"
+      >
+    </header>
+
+    <!-- アプリ本体 -->
+    <div id="app-container" class="w-full max-w-md mx-auto">
 
         <!-- 設定画面 -->
         <div id="settings-screen" class="p-6 bg-white rounded-2xl shadow-lg space-y-6">
