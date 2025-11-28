@@ -39,7 +39,7 @@
   <style>
     body {
       font-family: 'M PLUS Rounded 1c', 'Inter', sans-serif;
-      -webkit-tap-highlight-color: transparent; /* スマホタップ時のハイライトを無効化 */
+      -webkit-tap-highlight-color: transparent;
     }
     .car-icon {
       transition: transform 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.8s ease-out;
@@ -84,300 +84,398 @@
     <!-- アプリ本体 -->
     <div id="app-container" class="w-full max-w-md mx-auto">
 
-        <!-- 設定画面 -->
-        <div id="settings-screen" class="p-6 bg-white rounded-2xl shadow-lg space-y-6">
-            <h1 class="text-2xl font-bold text-center text-amber-600">じゅんび</h1>
-            <div>
-                <label for="title-input" class="block text-sm font-medium text-gray-700 mb-1">タイトル</label>
-                <input type="text" id="title-input" placeholder="例：すべりだい" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
-            </div>
-             <div>
-                <label for="photo-input" class="block text-sm font-medium text-gray-700 mb-1">しゃしん</label>
-                <input type="file" id="photo-input" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
-                <img id="photo-preview" class="hidden mt-4 rounded-lg max-h-40 mx-auto" src="" alt="Photo preview">
-            </div>
-            <div>
-                <label for="count-input" class="block text-sm font-medium text-gray-700 mb-1">なんかい？</label>
-                <div class="flex items-center justify-center space-x-4">
-                    <button id="decrement" class="px-4 py-2 bg-amber-400 text-white rounded-full font-bold text-lg">-</button>
-                    <input type="number" id="count-input" value="3" min="1" max="20" class="w-20 text-center text-xl font-bold border-transparent focus:outline-none focus:ring-0">
-                    <button id="increment" class="px-4 py-2 bg-amber-400 text-white rounded-full font-bold text-lg">+</button>
-                </div>
-            </div>
-            <button id="start-btn" class="w-full py-3 bg-orange-500 text-white font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors text-lg">
-                スタート！
-            </button>
+      <!-- 設定画面 -->
+      <div id="settings-screen" class="p-6 bg-white rounded-2xl shadow-lg space-y-6">
+        <h1 class="text-2xl font-bold text-center text-amber-600">じゅんび</h1>
+        <div>
+          <label for="title-input" class="block text-sm font-medium text-gray-700 mb-1">タイトル</label>
+          <input type="text" id="title-input" placeholder="例：すべりだい" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
         </div>
-
-        <!-- メイン画面 -->
-        <div id="main-screen" class="hidden text-center">
-            <h2 id="display-title" class="text-3xl font-bold mb-4 text-amber-700"></h2>
-            <img id="display-photo" class="hidden mb-6 rounded-lg shadow-md max-h-60 mx-auto" src="" alt="Uploaded photo">
-            <div id="car-container" class="flex flex-wrap justify-center items-center gap-4 mb-8">
-                <!-- 車アイコンがここに追加されます -->
-            </div>
-             <button id="reset-btn" class="py-2 px-6 bg-white text-amber-600 border-2 border-amber-500 font-bold rounded-lg shadow-sm hover:bg-amber-50 transition-colors">
-                リセット
-            </button>
+        <div>
+          <label for="photo-input" class="block text-sm font-medium text-gray-700 mb-1">しゃしん</label>
+          <input type="file" id="photo-input" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
+          <img id="photo-preview" class="hidden mt-4 rounded-lg max-h-40 mx-auto" src="" alt="Photo preview">
         </div>
-
-        <!-- おしまいメッセージ -->
-        <div id="finish-message" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div class="finish-popup bg-white p-12 rounded-3xl shadow-2xl text-center">
-                <span class="text-6xl mb-4 inline-block">🎉</span>
-                <p class="text-5xl font-bold text-orange-500">おしまい！</p>
-            </div>
+        <div>
+          <label for="count-input" class="block text-sm font-medium text-gray-700 mb-1">なんかい？</label>
+          <div class="flex items-center justify-center space-x-4">
+            <button id="decrement" class="px-4 py-2 bg-amber-400 text-white rounded-full font-bold text-lg">-</button>
+            <input type="number" id="count-input" value="3" min="1" max="20" class="w-20 text-center text-xl font-bold border-transparent focus:outline-none focus:ring-0">
+            <button id="increment" class="px-4 py-2 bg-amber-400 text-white rounded-full font-bold text-lg">+</button>
+          </div>
         </div>
+        <button id="start-btn" class="w-full py-3 bg-orange-500 text-white font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors text-lg">
+          スタート！
+        </button>
+      </div>
 
+      <!-- メイン画面 -->
+      <div id="main-screen" class="hidden text-center">
+        <h2 id="display-title" class="text-3xl font-bold mb-4 text-amber-700"></h2>
+        <img id="display-photo" class="hidden mb-6 rounded-lg shadow-md max-h-60 mx-auto" src="" alt="Uploaded photo">
+        <div id="car-container" class="flex flex-wrap justify-center items-center gap-4 mb-8">
+          <!-- 車アイコンがここに追加されます -->
+        </div>
+        <button id="reset-btn" class="py-2 px-6 bg-white text-amber-600 border-2 border-amber-500 font-bold rounded-lg shadow-sm hover:bg-amber-50 transition-colors">
+          リセット
+        </button>
+      </div>
+
+      <!-- おしまいメッセージ -->
+      <div id="finish-message" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="finish-popup bg-white p-12 rounded-3xl shadow-2xl text-center">
+          <span class="text-6xl mb-4 inline-block">🎉</span>
+          <p class="text-5xl font-bold text-orange-500">おしまい！</p>
+        </div>
+      </div>
+
+    </div><!-- /#app-container -->
+
+  </div><!-- ★ この </div> が元コードでは抜けていました -->
+
+  <!-- ===== フッター右下のロゴ ===== -->
+  <div id="logo-container" class="fixed bottom-4 right-4 flex items-center space-x-2 opacity-75">
+    <img src="./Flogo2.png" alt="ロゴ" class="h-10 w-10 rounded-full object-cover">
+    <p class="text-xs text-gray-600 font-semibold">一般社団法人福祉でつながる会</p>
+  </div>
+
+  <!-- ===== 問い合わせボタン ===== -->
+  <button id="contactButton"
+    class="fixed bottom-6 right-6 bg-yellow-200 border border-gray-300
+           shadow-md px-4 py-2 rounded-lg text-sm z-50">
+    問い合わせはこちら
+  </button>
+
+  <!-- フィードバックフォーム（初期は非表示） -->
+  <div id="feedbackForm"
+    class="fixed bottom-24 right-4 bg-white border border-gray-300 rounded-lg shadow-xl
+           p-4 w-72 z-50 hidden">
+
+    <h3 class="text-lg mb-3 font-bold">お問い合わせ</h3>
+
+    <form id="feedbackSubmitForm">
+      <!-- どのアプリか -->
+      <label class="text-sm">アプリを選択（必須）</label>
+      <select id="appName" required
+        class="w-full border rounded px-2 py-1 mb-3 text-sm">
+        <option value="" disabled selected>選択してください</option>
+        <option value="あとなんかい？アプリ">あとなんかい？アプリ</option>
+        <option value="リフレミー">リフレミー</option>
+        <option value="ほめスタ">ほめスタ</option>
+        <option value="めざせリフレーミングマスター">めざせリフレーミングマスター</option>
+      </select>
+
+      <!-- 種別 -->
+      <label class="text-sm">種別</label>
+      <select id="feedbackType"
+        class="w-full border rounded px-2 py-1 mb-3 text-sm">
+        <option>バグ報告</option>
+        <option>要望</option>
+        <option>質問</option>
+        <option>その他</option>
+      </select>
+
+      <!-- 内容 -->
+      <label class="text-sm">内容</label>
+      <textarea id="content"
+        class="w-full border rounded px-2 py-1 mb-3 text-sm h-20"
+        required></textarea>
+
+      <!-- メール（任意） -->
+      <label class="text-sm">メールアドレス（任意）</label>
+      <input id="email" type="email"
+        class="w-full border rounded px-2 py-1 mb-3 text-sm">
+
+      <!-- 送信 -->
+      <button type="submit"
+        class="w-full bg-orange-300 py-2 rounded-lg text-sm font-bold mb-2">
+        送信
+      </button>
+
+      <button type="button" id="closeFeedback"
+        class="w-full bg-gray-200 py-2 rounded-lg text-sm">
+        閉じる
+      </button>
+    </form>
+
+    <!-- 送信後メッセージ -->
+    <div id="feedbackThanks" class="hidden text-center">
+      <p class="mb-4">送信ありがとうございます！</p>
+      <button type="button" id="closeThanks"
+        class="w-full bg-gray-200 py-2 rounded-lg text-sm">
+        閉じる
+      </button>
     </div>
+  </div>
 
-    <!-- ===== ここから追加 ===== -->
-    <div id="logo-container" class="fixed bottom-4 right-4 flex items-center space-x-2 opacity-75">
-        <img src="./Flogo2.png" alt="ロゴ" class="h-10 w-10 rounded-full object-cover">
-        <p class="text-xs text-gray-600 font-semibold">一般社団法人福祉でつながる会</p>
-    </div>
-    <!-- ===== ここまで追加 ===== -->
+  <!-- ===== スクリプト群 ===== -->
+  <!-- 問い合わせフォーム用 -->
+  <script>
+    const contactButton = document.getElementById("contactButton");
+    const feedbackForm = document.getElementById("feedbackForm");
+    const closeFeedback = document.getElementById("closeFeedback");
+    const feedbackSubmitForm = document.getElementById("feedbackSubmitForm");
+    const feedbackThanks = document.getElementById("feedbackThanks");
+    const closeThanks = document.getElementById("closeThanks");
 
+    contactButton.addEventListener("click", () => {
+      feedbackForm.classList.remove("hidden");
+    });
 
-    <script>
-        // DOM要素の取得
-        const settingsScreen = document.getElementById('settings-screen');
-        const mainScreen = document.getElementById('main-screen');
-        const titleInput = document.getElementById('title-input');
-        const countInput = document.getElementById('count-input');
-        const startBtn = document.getElementById('start-btn');
-        const displayTitle = document.getElementById('display-title');
-        const carContainer = document.getElementById('car-container');
-        const resetBtn = document.getElementById('reset-btn');
-        const finishMessage = document.getElementById('finish-message');
-        const decrementBtn = document.getElementById('decrement');
-        const incrementBtn = document.getElementById('increment');
-        const photoInput = document.getElementById('photo-input');
-        const photoPreview = document.getElementById('photo-preview');
-        const displayPhoto = document.getElementById('display-photo');
-        const logoContainer = document.getElementById('logo-container');
-        
-        let remainingCount = 0;
+    closeFeedback.addEventListener("click", () => {
+      feedbackForm.classList.add("hidden");
+    });
 
-        // 番号付きのゆるかわ車のSVGアイコンを生成する関数
-function createCarSVG(number) {
-  return `
-  <svg viewBox="0 0 140 100" class="w-20 h-20 sm:w-24 sm:h-24">
-    <g stroke-linecap="round" stroke-linejoin="round">
+    feedbackSubmitForm.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-      <!-- 車のボディ（手描きっぽいゆるい形） -->
-      <path
-        d="M18 60
-           Q20 40 40 35
-           H85
-           Q105 35 120 55
-           Q124 60 122 70
-           Q120 82 108 84
-           H32
-           Q20 82 18 72
-           Q16 66 18 60
-           Z"
-        fill="currentColor"
-        opacity="0.9"
-      />
+      const appName = document.getElementById("appName").value;
+      const feedbackType = document.getElementById("feedbackType").value;
+      const content = document.getElementById("content").value;
+      const email = document.getElementById("email").value;
 
-      <!-- 屋根ライン（currentColorで統一） -->
-      <path
-        d="M40 35
-           Q55 18 75 18
-           Q95 18 108 35"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="4"
-        opacity="0.35"
-      />
+      if (!appName) {
+        alert("アプリを選択してください。");
+        return;
+      }
 
-      <!-- フロントガラス枠 -->
-      <rect
-        x="47"
-        y="30"
-        width="46"
-        height="24"
-        rx="10"
-        ry="10"
-        fill="none"
-        stroke="#ffffff"
-        stroke-width="2.2"
-        opacity="0.7"
-      />
+      const subject = encodeURIComponent(`[${appName}] 問い合わせ: ${feedbackType}`);
+      const body = encodeURIComponent(
+        `アプリ：${appName}\n種別：${feedbackType}\n\n内容：\n${content}\n\nメール：${email || "未記入"}`
+      );
 
-      <!-- キャラクター風の大きい目 -->
-      <circle cx="60" cy="43" r="9" fill="#ffffff" />
-      <circle cx="80" cy="43" r="9" fill="#ffffff" />
-      <circle cx="60" cy="43" r="4.8" fill="#333333" />
-      <circle cx="80" cy="43" r="4.8" fill="#333333" />
+      window.location.href =
+        `mailto:info.fukushi@allcare.co.jp?subject=${subject}&body=${body}`;
 
-      <!-- くち -->
-      <path
-        d="M63 53 Q70 57 77 53"
-        fill="none"
-        stroke="#ffffff"
-        stroke-width="2.8"
-      />
+      feedbackSubmitForm.classList.add("hidden");
+      feedbackThanks.classList.remove("hidden");
+    });
 
-      <!-- タイヤ -->
-      <circle cx="42" cy="80" r="9.5" fill="#555555" />
-      <circle cx="96" cy="80" r="9.5" fill="#555555" />
+    closeThanks.addEventListener("click", () => {
+      feedbackForm.classList.add("hidden");
+      feedbackSubmitForm.classList.remove("hidden");
+      feedbackThanks.classList.add("hidden");
+      feedbackSubmitForm.reset();
+    });
+  </script>
 
-      <!-- タイヤ中央のハイライト -->
-      <circle cx="42" cy="80" r="4.5" fill="#e5e5e5" opacity="0.85" />
-      <circle cx="96" cy="80" r="4.5" fill="#e5e5e5" opacity="0.85" />
+  <!-- アプリ本体用 -->
+  <script>
+    // DOM要素の取得
+    const settingsScreen = document.getElementById('settings-screen');
+    const mainScreen = document.getElementById('main-screen');
+    const titleInput = document.getElementById('title-input');
+    const countInput = document.getElementById('count-input');
+    const startBtn = document.getElementById('start-btn');
+    const displayTitle = document.getElementById('display-title');
+    const carContainer = document.getElementById('car-container');
+    const resetBtn = document.getElementById('reset-btn');
+    const finishMessage = document.getElementById('finish-message');
+    const decrementBtn = document.getElementById('decrement');
+    const incrementBtn = document.getElementById('increment');
+    const photoInput = document.getElementById('photo-input');
+    const photoPreview = document.getElementById('photo-preview');
+    const displayPhoto = document.getElementById('display-photo');
+    const logoContainer = document.getElementById('logo-container');
 
-      <!-- 番号（白フチ付きでしっかり見える） -->
-      <text
-        x="50%"
-        y="78%"
-        text-anchor="middle"
-        font-size="32"
-        font-weight="bold"
-        fill="#ffffff"
-        stroke="#000000"
-        stroke-width="2"
-        style="font-family: 'M PLUS Rounded 1c', sans-serif;"
-      >
-        ${number}
-      </text>
-    </g>
-  </svg>
-  `;
-}
+    let remainingCount = 0;
 
+    // 番号付きのゆるかわ車のSVGアイコンを生成する関数
+    function createCarSVG(number) {
+      return `
+      <svg viewBox="0 0 140 100" class="w-20 h-20 sm:w-24 sm:h-24">
+        <g stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M18 60
+               Q20 40 40 35
+               H85
+               Q105 35 120 55
+               Q124 60 122 70
+               Q120 82 108 84
+               H32
+               Q20 82 18 72
+               Q16 66 18 60
+               Z"
+            fill="currentColor"
+            opacity="0.9"
+          />
+          <path
+            d="M40 35
+               Q55 18 75 18
+               Q95 18 108 35"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="4"
+            opacity="0.35"
+          />
+          <rect
+            x="47"
+            y="30"
+            width="46"
+            height="24"
+            rx="10"
+            ry="10"
+            fill="none"
+            stroke="#ffffff"
+            stroke-width="2.2"
+            opacity="0.7"
+          />
+          <circle cx="60" cy="43" r="9" fill="#ffffff" />
+          <circle cx="80" cy="43" r="9" fill="#ffffff" />
+          <circle cx="60" cy="43" r="4.8" fill="#333333" />
+          <circle cx="80" cy="43" r="4.8" fill="#333333" />
+          <path
+            d="M63 53 Q70 57 77 53"
+            fill="none"
+            stroke="#ffffff"
+            stroke-width="2.8"
+          />
+          <circle cx="42" cy="80" r="9.5" fill="#555555" />
+          <circle cx="96" cy="80" r="9.5" fill="#555555" />
+          <circle cx="42" cy="80" r="4.5" fill="#e5e5e5" opacity="0.85" />
+          <circle cx="96" cy="80" r="4.5" fill="#e5e5e5" opacity="0.85" />
+          <text
+            x="50%"
+            y="78%"
+            text-anchor="middle"
+            font-size="32"
+            font-weight="bold"
+            fill="#ffffff"
+            stroke="#000000"
+            stroke-width="2"
+            style="font-family: 'M PLUS Rounded 1c', sans-serif;"
+          >
+            ${number}
+          </text>
+        </g>
+      </svg>
+      `;
+    }
 
-const carColors = [
-  'text-sky-300',
-  'text-emerald-300',
-  'text-amber-300',
-  'text-pink-300',
-  'text-violet-300',
-  'text-lime-300',
-  'text-orange-300',
-  'text-teal-300'
-];
-  
-        // 写真が選択されたときの処理
-        photoInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    photoPreview.src = e.target.result;
-                    photoPreview.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+    const carColors = [
+      'text-sky-300',
+      'text-emerald-300',
+      'text-amber-300',
+      'text-pink-300',
+      'text-violet-300',
+      'text-lime-300',
+      'text-orange-300',
+      'text-teal-300'
+    ];
 
-        // カウント増減ボタンの処理
-        decrementBtn.addEventListener('click', () => {
-            let currentValue = parseInt(countInput.value);
-            if (currentValue > countInput.min) {
-                countInput.value = currentValue - 1;
-            }
-        });
+    // 写真が選択されたときの処理
+    photoInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          photoPreview.src = e.target.result;
+          photoPreview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
-        incrementBtn.addEventListener('click', () => {
-            let currentValue = parseInt(countInput.value);
-            if (currentValue < countInput.max) {
-                countInput.value = currentValue + 1;
-            }
-        });
+    // カウント増減ボタンの処理
+    decrementBtn.addEventListener('click', () => {
+      let currentValue = parseInt(countInput.value);
+      if (currentValue > countInput.min) {
+        countInput.value = currentValue - 1;
+      }
+    });
 
-        // スタートボタンの処理
-        startBtn.addEventListener('click', () => {
-            const title = titleInput.value.trim() === '' ? 'あと' : titleInput.value;
-            const count = parseInt(countInput.value);
-            const photoSrc = photoPreview.src;
-            
-            if (count > 0) {
-                setupMainScreen(title, count, photoSrc);
-                settingsScreen.classList.add('hidden');
-                mainScreen.classList.remove('hidden');
-                logoContainer.classList.add('hidden'); // メイン画面ではロゴを非表示
-            }
-        });
-        
-        // メイン画面のセットアップ
-        function setupMainScreen(title, count, photoSrc) {
-            displayTitle.textContent = `${title} あと ${count}かい`;
-            
-            if (photoSrc && photoSrc !== window.location.href) { // 写真が選択されているかチェック
-                displayPhoto.src = photoSrc;
-                displayPhoto.classList.remove('hidden');
-            } else {
-                displayPhoto.classList.add('hidden');
-            }
+    incrementBtn.addEventListener('click', () => {
+      let currentValue = parseInt(countInput.value);
+      if (currentValue < countInput.max) {
+        countInput.value = currentValue + 1;
+      }
+    });
 
-            carContainer.innerHTML = '';
-            remainingCount = count;
-            
-            for (let i = 0; i < count; i++) {
-                const carWrapper = document.createElement('div');
-                carWrapper.innerHTML = createCarSVG(i + 1); // 番号を渡してSVGを生成
-                carWrapper.className = `car-icon ${carColors[i % carColors.length]}`;
-                carWrapper.addEventListener('click', carClickListener);
-                carContainer.appendChild(carWrapper);
-            }
-        }
+    // スタートボタンの処理
+    startBtn.addEventListener('click', () => {
+      const title = titleInput.value.trim() === '' ? 'あと' : titleInput.value;
+      const count = parseInt(countInput.value);
+      const photoSrc = photoPreview.src;
 
-        // 車アイコンクリック時の処理
-        function carClickListener(event) {
-            const car = event.currentTarget;
-            
-            if (car.classList.contains('departing')) return; // すでに出発処理中の場合は何もしない
+      if (count > 0) {
+        setupMainScreen(title, count, photoSrc);
+        settingsScreen.classList.add('hidden');
+        mainScreen.classList.remove('hidden');
+        logoContainer.classList.add('hidden'); // メイン画面ではロゴを非表示
+      }
+    });
 
-            car.classList.add('departing');
-            remainingCount--;
-            
-            // アニメーションが終わるのを待ってから非表示にする
-            setTimeout(() => {
-                car.style.visibility = 'hidden';
-            }, 800);
+    // メイン画面のセットアップ
+    function setupMainScreen(title, count, photoSrc) {
+      displayTitle.textContent = `${title} あと ${count}かい`;
 
-            // 残りカウントの更新
-            if (remainingCount > 0) {
-                 const title = displayTitle.textContent.split(' あと')[0];
-                 displayTitle.textContent = `${title} あと ${remainingCount}かい`;
-            } else {
-                 displayTitle.textContent = 'よくできました！';
-                 // 全ての車が出発したらおしまいメッセージ表示
-                 setTimeout(() => {
-                    finishMessage.classList.remove('hidden');
-                 }, 1000); // 最後の車のアニメーションが終わるのを待つ
-            }
-            
-            // イベントリスナーを削除して二度押しを防ぐ
-            car.removeEventListener('click', carClickListener);
-        }
+      if (photoSrc && photoSrc !== window.location.href) {
+        displayPhoto.src = photoSrc;
+        displayPhoto.classList.remove('hidden');
+      } else {
+        displayPhoto.classList.add('hidden');
+      }
 
-        // リセットボタンの処理
-        resetBtn.addEventListener('click', () => {
-            mainScreen.classList.add('hidden');
-            settingsScreen.classList.remove('hidden');
-            logoContainer.classList.remove('hidden'); // 設定画面に戻ったらロゴを再表示
-            titleInput.value = ''; // タイトルをクリア
-            photoInput.value = ''; // 写真選択をクリア
-            photoPreview.src = ''; // プレビューをクリア
-            photoPreview.classList.add('hidden');
-        });
+      carContainer.innerHTML = '';
+      remainingCount = count;
 
-        // おしまいメッセージをクリックしたらリセット
-        finishMessage.addEventListener('click', () => {
-            finishMessage.classList.add('hidden');
-            mainScreen.classList.add('hidden');
-            settingsScreen.classList.remove('hidden');
-            logoContainer.classList.remove('hidden'); // 設定画面に戻ったらロゴを再表示
-            titleInput.value = '';
-            photoInput.value = ''; // 写真選択をクリア
-            photoPreview.src = ''; // プレビューをクリア
-            photoPreview.classList.add('hidden');
-        });
+      for (let i = 0; i < count; i++) {
+        const carWrapper = document.createElement('div');
+        carWrapper.innerHTML = createCarSVG(i + 1);
+        carWrapper.className = `car-icon ${carColors[i % carColors.length]}`;
+        carWrapper.addEventListener('click', carClickListener);
+        carContainer.appendChild(carWrapper);
+      }
+    }
 
-    </script>
+    // 車アイコンクリック時の処理
+    function carClickListener(event) {
+      const car = event.currentTarget;
+
+      if (car.classList.contains('departing')) return;
+
+      car.classList.add('departing');
+      remainingCount--;
+
+      setTimeout(() => {
+        car.style.visibility = 'hidden';
+      }, 800);
+
+      if (remainingCount > 0) {
+        const title = displayTitle.textContent.split(' あと')[0];
+        displayTitle.textContent = `${title} あと ${remainingCount}かい`;
+      } else {
+        displayTitle.textContent = 'よくできました！';
+        setTimeout(() => {
+          finishMessage.classList.remove('hidden');
+        }, 1000);
+      }
+
+      car.removeEventListener('click', carClickListener);
+    }
+
+    // リセットボタンの処理
+    resetBtn.addEventListener('click', () => {
+      mainScreen.classList.add('hidden');
+      settingsScreen.classList.remove('hidden');
+      logoContainer.classList.remove('hidden');
+      titleInput.value = '';
+      photoInput.value = '';
+      photoPreview.src = '';
+      photoPreview.classList.add('hidden');
+    });
+
+    // おしまいメッセージをクリックしたらリセット
+    finishMessage.addEventListener('click', () => {
+      finishMessage.classList.add('hidden');
+      mainScreen.classList.add('hidden');
+      settingsScreen.classList.remove('hidden');
+      logoContainer.classList.remove('hidden');
+      titleInput.value = '';
+      photoInput.value = '';
+      photoPreview.src = '';
+      photoPreview.classList.add('hidden');
+    });
+  </script>
 </body>
 </html>
-
