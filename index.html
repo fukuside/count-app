@@ -133,24 +133,32 @@
 
   </div><!-- ★ この </div> が元コードでは抜けていました -->
 
-  <!-- ===== フッター右下のロゴ ===== -->
-  <div id="logo-container"
-    class="fixed bottom-20 right-4 flex items-center space-x-2 opacity-75">
-    <img src="./Flogo2.png" alt="ロゴ" class="h-10 w-10 rounded-full object-cover">
-    <p class="text-xs text-gray-600 font-semibold">一般社団法人福祉でつながる会</p>
+    <!-- ===== フッター右下：社名ロゴ＋問い合わせボタン ===== -->
+  <div id="footer-fixed"
+       class="fixed bottom-4 right-4 flex flex-col items-end space-y-2 z-50">
+    <!-- 社名ロゴ -->
+    <div id="logo-container"
+         class="flex items-center space-x-2 opacity-75">
+      <img src="./Flogo2.png" alt="ロゴ"
+           class="h-10 w-10 rounded-full object-cover">
+      <p class="text-xs text-gray-600 font-semibold">
+        一般社団法人福祉でつながる会
+      </p>
+    </div>
+
+    <!-- 問い合わせボタン -->
+    <button id="contactButton"
+            class="bg-yellow-200 border border-gray-300 shadow-md
+                   px-4 py-2 rounded-lg text-sm">
+      問い合わせはこちら
+    </button>
   </div>
 
-  <!-- ===== 問い合わせボタン ===== -->
-  <button id="contactButton"
-    class="fixed bottom-4 right-4 bg-yellow-200 border border-gray-300
-         shadow-md px-4 py-2 rounded-lg text-sm z-50">
-    問い合わせはこちら
-  </button>
 
   <!-- フィードバックフォーム（初期は非表示） -->
-  <div id="feedbackForm"
-  class="fixed bottom-32 right-4 bg-white border border-gray-300 rounded-lg shadow-xl
-         p-4 w-72 z-50 hidden">
+    <div id="feedbackForm"
+       class="fixed bottom-28 right-4 bg-white border border-gray-300 rounded-lg shadow-xl
+              p-4 w-72 z-50 hidden">
 
     <h3 class="text-lg mb-3 font-bold">お問い合わせ</h3>
 
@@ -277,7 +285,7 @@
     const photoInput = document.getElementById('photo-input');
     const photoPreview = document.getElementById('photo-preview');
     const displayPhoto = document.getElementById('display-photo');
-    const logoContainer = document.getElementById('logo-container');
+  
 
     let remainingCount = 0;
 
@@ -394,7 +402,7 @@
 
     // スタートボタンの処理
     startBtn.addEventListener('click', () => {
-      const title = titleInput.value.trim() === '' ? 'あと' : titleInput.value;
+      const title = titleInput.value.trim() === '' ? '': titleInput.value;
       const count = parseInt(countInput.value);
       const photoSrc = photoPreview.src;
 
@@ -402,7 +410,6 @@
         setupMainScreen(title, count, photoSrc);
         settingsScreen.classList.add('hidden');
         mainScreen.classList.remove('hidden');
-        logoContainer.classList.add('hidden'); // メイン画面ではロゴを非表示
       }
     });
 
@@ -443,8 +450,7 @@
       }, 800);
 
       if (remainingCount > 0) {
-        const title = displayTitle.textContent.split(' あと')[0];
-        displayTitle.textContent = `${title} あと ${remainingCount}かい`;
+       displayTitle.textContent = `あと ${remainingCount}かい`;
       } else {
         displayTitle.textContent = 'よくできました！';
         setTimeout(() => {
@@ -455,11 +461,10 @@
       car.removeEventListener('click', carClickListener);
     }
 
-    // リセットボタンの処理
+        // リセットボタンの処理
     resetBtn.addEventListener('click', () => {
       mainScreen.classList.add('hidden');
       settingsScreen.classList.remove('hidden');
-      logoContainer.classList.remove('hidden');
       titleInput.value = '';
       photoInput.value = '';
       photoPreview.src = '';
@@ -471,7 +476,6 @@
       finishMessage.classList.add('hidden');
       mainScreen.classList.add('hidden');
       settingsScreen.classList.remove('hidden');
-      logoContainer.classList.remove('hidden');
       titleInput.value = '';
       photoInput.value = '';
       photoPreview.src = '';
