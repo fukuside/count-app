@@ -6,12 +6,9 @@
   <title>あとなんかい？アプリ</title>
 
   <!-- Webアプリアイコン -->
-  <link rel="icon" type="image/png" sizes="192x192"
-        href="./images/icons/atonankai-192.png">
-  <link rel="apple-touch-icon" sizes="192x192"
-        href="./images/icons/atonankai-192.png">
-  <link rel="icon" type="image/png" sizes="512x512"
-        href="./images/icons/atonankai-512.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./images/icons/atonankai-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="./images/icons/atonankai-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./images/icons/atonankai-512.png">
 
   <!-- PWA用（必要なら） -->
   <link rel="manifest" href="./manifest.webmanifest">
@@ -31,16 +28,16 @@
   <!-- フォント -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap"
-    rel="stylesheet"
-  >
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
     body {
       font-family: 'M PLUS Rounded 1c', 'Inter', sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
+    .hidden { display: none; }
+
+    /* 車 */
     .car-icon {
       transition: transform 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.8s ease-out;
       cursor: pointer;
@@ -49,36 +46,48 @@
       transform: translateX(150vw) rotate(10deg);
       opacity: 0;
     }
-    .hidden {
-      display: none;
-    }
+
+    /* おしまいポップアップ */
     .finish-popup {
       animation: bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
     @keyframes bounce-in {
-      0% {
-        opacity: 0;
-        transform: scale(0.3);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
+      0% { opacity: 0; transform: scale(0.3); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* 風船：残り60秒の“ぷるぷる” */
+    @keyframes wobble {
+      0%   { transform: translateY(0) rotate(0deg) scale(var(--balloonScale, 1)); }
+      15%  { transform: translateY(-2px) rotate(-2deg) scale(var(--balloonScale, 1)); }
+      30%  { transform: translateY(1px) rotate(2deg) scale(var(--balloonScale, 1)); }
+      45%  { transform: translateY(-2px) rotate(-1deg) scale(var(--balloonScale, 1)); }
+      60%  { transform: translateY(1px) rotate(2deg) scale(var(--balloonScale, 1)); }
+      75%  { transform: translateY(-1px) rotate(-2deg) scale(var(--balloonScale, 1)); }
+      100% { transform: translateY(0) rotate(0deg) scale(var(--balloonScale, 1)); }
+    }
+    .wobble {
+      animation: wobble 0.45s ease-in-out infinite;
+      transform-origin: 50% 80%;
+    }
+
+    /* 風船選択：チェック時に枠を強調 */
+    .choice-radio:checked + .choice-card {
+      outline: 3px solid rgba(236,72,153,0.45);
+      box-shadow: 0 10px 30px rgba(236,72,153,0.18);
+      transform: translateY(-1px);
     }
   </style>
 </head>
 
 <body class="bg-orange-50 text-gray-800 min-h-screen">
+
   <!-- 全体レイアウトラッパー -->
   <div class="min-h-screen flex flex-col items-center justify-center px-4">
 
     <!-- ロゴ（ヘッダー） -->
     <header class="mb-6">
-      <img
-        src="./images/logo/logo-atonankai-header.png"
-        alt="あとなんかい？アプリ ロゴ"
-        class="h-24 mx-auto"
-      >
+      <img src="./images/logo/logo-atonankai-header.png" alt="あとなんかい？アプリ ロゴ" class="h-24 mx-auto">
     </header>
 
     <!-- アプリ本体 -->
@@ -87,41 +96,196 @@
       <!-- 設定画面 -->
       <div id="settings-screen" class="p-6 bg-white rounded-2xl shadow-lg space-y-6">
         <h1 class="text-2xl font-bold text-center text-amber-600">じゅんび</h1>
+
         <div>
           <label for="title-input" class="block text-sm font-medium text-gray-700 mb-1">タイトル</label>
-          <input type="text" id="title-input" placeholder="例：すべりだい" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+          <input type="text" id="title-input" placeholder="例：すべりだい"
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
         </div>
+
         <div>
           <label for="photo-input" class="block text-sm font-medium text-gray-700 mb-1">しゃしん</label>
-          <input type="file" id="photo-input" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
+          <input type="file" id="photo-input" accept="image/*"
+                 class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
           <img id="photo-preview" class="hidden mt-4 rounded-lg max-h-40 mx-auto" src="" alt="Photo preview">
         </div>
-        <div>
+
+        <!-- あとなんかい？ -->
+        <div class="space-y-3">
           <label for="count-input" class="block text-sm font-medium text-gray-700 mb-1">なんかい？</label>
           <div class="flex items-center justify-center space-x-4">
             <button id="decrement" class="px-4 py-2 bg-amber-400 text-white rounded-full font-bold text-lg">-</button>
-            <input type="number" id="count-input" value="3" min="1" max="20" class="w-20 text-center text-xl font-bold border-transparent focus:outline-none focus:ring-0">
+            <input type="number" id="count-input" value="3" min="1" max="20"
+                   class="w-20 text-center text-xl font-bold border-transparent focus:outline-none focus:ring-0">
             <button id="increment" class="px-4 py-2 bg-amber-400 text-white rounded-full font-bold text-lg">+</button>
           </div>
+
+          <!-- 配置指定：回数の下にボタン -->
+          <button id="start-btn"
+                  class="w-full py-3 bg-orange-500 text-white font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors text-lg">
+            あとなんかい？スタート
+          </button>
         </div>
-        <button id="start-btn" class="w-full py-3 bg-orange-500 text-white font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors text-lg">
-          スタート！
-        </button>
+
+        <!-- ふうせんタイマー -->
+        <div class="space-y-3 pt-2 border-t">
+          <label for="balloon-minutes" class="block text-sm font-medium text-gray-700 mb-1">
+            ふうせんタイマー（2〜10ぷん）
+          </label>
+
+          <div class="flex items-center justify-center space-x-4">
+            <button id="balloonDec" class="px-4 py-2 bg-pink-400 text-white rounded-full font-bold text-lg">-</button>
+            <input type="number" id="balloon-minutes" value="3" min="2" max="10"
+                   class="w-20 text-center text-xl font-bold border-transparent focus:outline-none focus:ring-0">
+            <button id="balloonInc" class="px-4 py-2 bg-pink-400 text-white rounded-full font-bold text-lg">+</button>
+          </div>
+
+          <!-- 風船3種：小さめで崩さない -->
+          <div class="mt-2">
+            <p class="text-sm font-medium text-gray-700 mb-2">どれにする？</p>
+
+            <div class="grid grid-cols-3 gap-2">
+              <!-- ふうせん -->
+              <label class="block">
+                <input class="choice-radio hidden" type="radio" name="balloonType" value="round" checked>
+                <div class="choice-card rounded-2xl border bg-white px-2 py-2 text-center shadow-sm transition">
+                  <div class="mx-auto w-14 h-14 flex items-center justify-center">
+                    <svg viewBox="0 0 120 140" class="w-14 h-14">
+                      <path d="M60 92 C 40 112, 75 118, 55 136" fill="none" stroke="#64748b" stroke-width="3" stroke-linecap="round"/>
+                      <path d="M60 78 L50 90 L70 90 Z" fill="#fb7185"/>
+                      <path d="M60 8
+                               C 92 8, 112 32, 112 62
+                               C 112 96, 86 118, 60 118
+                               C 34 118, 8 96, 8 62
+                               C 8 32, 28 8, 60 8 Z" fill="#fb7185"/>
+                      <path d="M44 26 C 34 40, 34 58, 44 76" fill="none" stroke="white" stroke-opacity="0.55" stroke-width="8" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <div class="text-xs font-bold text-slate-700">ふうせん</div>
+                </div>
+              </label>
+
+              <!-- くるま -->
+              <label class="block">
+                <input class="choice-radio hidden" type="radio" name="balloonType" value="car">
+                <div class="choice-card rounded-2xl border bg-white px-2 py-2 text-center shadow-sm transition">
+                  <div class="mx-auto w-14 h-14 flex items-center justify-center">
+                    <svg viewBox="0 0 140 140" class="w-14 h-14">
+                      <path d="M70 94 C 50 114, 85 120, 65 138" fill="none" stroke="#64748b" stroke-width="3" stroke-linecap="round"/>
+                      <path d="M70 82 L58 96 L82 96 Z" fill="#60a5fa"/>
+                      <rect x="20" y="20" rx="28" ry="28" width="100" height="78" fill="#60a5fa"/>
+                      <path d="M36 54 Q70 18 104 54" fill="#60a5fa" opacity="0.95"/>
+                      <circle cx="52" cy="88" r="10" fill="#334155" opacity="0.9"/>
+                      <circle cx="98" cy="88" r="10" fill="#334155" opacity="0.9"/>
+                      <circle cx="52" cy="88" r="4" fill="#e2e8f0"/>
+                      <circle cx="98" cy="88" r="4" fill="#e2e8f0"/>
+                      <circle cx="52" cy="58" r="6" fill="#0f172a" opacity="0.9"/>
+                      <circle cx="88" cy="58" r="6" fill="#0f172a" opacity="0.9"/>
+                      <path d="M60 72 Q70 80 80 72" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round"/>
+                      <path d="M38 40 h64" stroke="white" stroke-opacity="0.4" stroke-width="8" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <div class="text-xs font-bold text-slate-700">くるま</div>
+                </div>
+              </label>
+
+              <!-- いちご -->
+              <label class="block">
+                <input class="choice-radio hidden" type="radio" name="balloonType" value="strawberry">
+                <div class="choice-card rounded-2xl border bg-white px-2 py-2 text-center shadow-sm transition">
+                  <div class="mx-auto w-14 h-14 flex items-center justify-center">
+                    <svg viewBox="0 0 140 140" class="w-14 h-14">
+                      <path d="M70 94 C 50 114, 85 120, 65 138" fill="none" stroke="#64748b" stroke-width="3" stroke-linecap="round"/>
+                      <path d="M70 82 L58 96 L82 96 Z" fill="#f43f5e"/>
+                      <path d="M70 18
+                               C 98 18, 116 40, 116 66
+                               C 116 104, 92 120, 70 124
+                               C 48 120, 24 104, 24 66
+                               C 24 40, 42 18, 70 18 Z" fill="#f43f5e"/>
+                      <path d="M46 20
+                               C 54 12, 62 10, 70 18
+                               C 78 10, 86 12, 94 20
+                               C 84 26, 76 28, 70 26
+                               C 64 28, 56 26, 46 20 Z" fill="#22c55e"/>
+                      <g fill="#ffe4e6" opacity="0.9">
+                        <ellipse cx="52" cy="60" rx="4" ry="6"/>
+                        <ellipse cx="70" cy="56" rx="4" ry="6"/>
+                        <ellipse cx="88" cy="60" rx="4" ry="6"/>
+                        <ellipse cx="60" cy="78" rx="4" ry="6"/>
+                        <ellipse cx="80" cy="78" rx="4" ry="6"/>
+                        <ellipse cx="70" cy="96" rx="4" ry="6"/>
+                      </g>
+                      <path d="M46 38 C 36 52, 36 72, 46 90" fill="none" stroke="white" stroke-opacity="0.35" stroke-width="10" stroke-linecap="round"/>
+                      <circle cx="58" cy="86" r="5" fill="#0f172a" opacity="0.9"/>
+                      <circle cx="82" cy="86" r="5" fill="#0f172a" opacity="0.9"/>
+                      <path d="M62 98 Q70 105 78 98" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <div class="text-xs font-bold text-slate-700">いちご</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 配置指定：設定の下にボタン -->
+          <button id="balloonStartBtn"
+                  class="w-full py-3 bg-pink-500 text-white font-bold rounded-lg shadow-md hover:bg-pink-600 transition-colors text-lg">
+            🎈 タイマースタート
+          </button>
+        </div>
       </div>
 
       <!-- メイン画面 -->
       <div id="main-screen" class="hidden text-center">
         <h2 id="display-title" class="text-3xl font-bold mb-4 text-amber-700"></h2>
         <img id="display-photo" class="hidden mb-6 rounded-lg shadow-md max-h-60 mx-auto" src="" alt="Uploaded photo">
-        <div id="car-container" class="flex flex-wrap justify-center items-center gap-4 mb-8">
-          <!-- 車アイコンがここに追加されます -->
-        </div>
-        <button id="reset-btn" class="py-2 px-6 bg-white text-amber-600 border-2 border-amber-500 font-bold rounded-lg shadow-sm hover:bg-amber-50 transition-colors">
+        <div id="car-container" class="flex flex-wrap justify-center items-center gap-4 mb-8"></div>
+        <button id="reset-btn"
+                class="py-2 px-6 bg-white text-amber-600 border-2 border-amber-500 font-bold rounded-lg shadow-sm hover:bg-amber-50 transition-colors">
           リセット
         </button>
       </div>
 
-      <!-- おしまいメッセージ -->
+      <!-- 風船タイマー画面 -->
+      <div id="balloon-screen" class="hidden">
+        <div class="p-6 bg-white rounded-2xl shadow-lg">
+          <div class="flex items-center justify-between">
+            <div class="font-bold text-slate-700">⏱ タイマー</div>
+            <div class="text-2xl font-black tabular-nums text-slate-900" id="balloonTimer">03:00</div>
+          </div>
+
+          <p class="mt-4 text-center text-slate-700 font-bold">
+            じゅんびができたら <span class="text-pink-600">タップ</span>して わろう！
+          </p>
+
+          <div class="mt-1 text-center text-xs font-bold text-slate-500" id="balloonTypeLabel">（ふうせん）</div>
+
+          <div class="mt-6 flex items-center justify-center">
+            <button id="balloonBtn" class="relative select-none touch-manipulation" aria-label="ふうせんをわる">
+              <div id="balloonWrap" class="relative will-change-transform"></div>
+
+              <div id="tapBadge"
+                   class="absolute -top-4 left-1/2 -translate-x-1/2
+                          px-3 py-1 rounded-full bg-white/90 border text-sm font-bold text-slate-700 shadow">
+                タップ！
+              </div>
+            </button>
+          </div>
+
+          <div class="mt-8 grid gap-3">
+            <button id="balloonRestart"
+                    class="w-full rounded-2xl bg-slate-900 text-white py-3 text-lg font-bold shadow active:scale-[0.99]">
+              もういちど
+            </button>
+            <button id="balloonBack"
+                    class="w-full rounded-2xl bg-white text-slate-900 py-3 text-lg font-bold border shadow-sm active:scale-[0.99]">
+              もどる
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- おしまいメッセージ（車） -->
       <div id="finish-message" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div class="finish-popup bg-white p-12 rounded-3xl shadow-2xl text-center">
           <span class="text-6xl mb-4 inline-block">🎉</span>
@@ -130,43 +294,30 @@
       </div>
 
     </div><!-- /#app-container -->
+  </div><!-- /全体ラッパー -->
 
-  </div><!-- ★ この </div> が元コードでは抜けていました -->
 
-    <!-- ===== フッター右下：社名ロゴ＋問い合わせボタン ===== -->
-  <div id="footer-fixed"
-       class="fixed bottom-4 right-4 flex flex-col items-end space-y-2 z-50">
-    <!-- 社名ロゴ -->
-    <div id="logo-container"
-         class="flex items-center space-x-2 opacity-75">
-      <img src="./Flogo2.png" alt="ロゴ"
-           class="h-10 w-10 rounded-full object-cover">
-      <p class="text-xs text-gray-600 font-semibold">
-        一般社団法人福祉でつながる会
-      </p>
+  <!-- ===== フッター右下：社名ロゴ＋問い合わせボタン ===== -->
+  <div id="footer-fixed" class="fixed bottom-4 right-4 flex flex-col items-end space-y-2 z-50">
+    <div id="logo-container" class="flex items-center space-x-2 opacity-75">
+      <img src="./Flogo2.png" alt="ロゴ" class="h-10 w-10 rounded-full object-cover">
+      <p class="text-xs text-gray-600 font-semibold">一般社団法人福祉でつながる会</p>
     </div>
 
-    <!-- 問い合わせボタン -->
-    <button id="contactButton"
-            class="bg-yellow-200 border border-gray-300 shadow-md
-                   px-4 py-2 rounded-lg text-sm">
+    <button id="contactButton" class="bg-yellow-200 border border-gray-300 shadow-md px-4 py-2 rounded-lg text-sm">
       問い合わせはこちら
     </button>
   </div>
 
-
   <!-- フィードバックフォーム（初期は非表示） -->
-    <div id="feedbackForm"
-       class="fixed bottom-28 right-4 bg-white border border-gray-300 rounded-lg shadow-xl
-              p-4 w-72 z-50 hidden">
+  <div id="feedbackForm"
+       class="fixed bottom-28 right-4 bg-white border border-gray-300 rounded-lg shadow-xl p-4 w-72 z-50 hidden">
 
     <h3 class="text-lg mb-3 font-bold">お問い合わせ</h3>
 
     <form id="feedbackSubmitForm">
-      <!-- どのアプリか -->
       <label class="text-sm">アプリを選択（必須）</label>
-      <select id="appName" required
-        class="w-full border rounded px-2 py-1 mb-3 text-sm">
+      <select id="appName" required class="w-full border rounded px-2 py-1 mb-3 text-sm">
         <option value="" disabled selected>選択してください</option>
         <option value="あとなんかい？アプリ">あとなんかい？アプリ</option>
         <option value="リフレミー">リフレミー</option>
@@ -174,313 +325,618 @@
         <option value="めざせリフレーミングマスター">めざせリフレーミングマスター</option>
       </select>
 
-      <!-- 種別 -->
       <label class="text-sm">種別</label>
-      <select id="feedbackType"
-        class="w-full border rounded px-2 py-1 mb-3 text-sm">
+      <select id="feedbackType" class="w-full border rounded px-2 py-1 mb-3 text-sm">
         <option>バグ報告</option>
         <option>要望</option>
         <option>質問</option>
         <option>その他</option>
       </select>
 
-      <!-- 内容 -->
       <label class="text-sm">内容</label>
-      <textarea id="content"
-        class="w-full border rounded px-2 py-1 mb-3 text-sm h-20"
-        required></textarea>
+      <textarea id="content" class="w-full border rounded px-2 py-1 mb-3 text-sm h-20" required></textarea>
 
-      <!-- メール（任意） -->
       <label class="text-sm">メールアドレス（任意）</label>
-      <input id="email" type="email"
-        class="w-full border rounded px-2 py-1 mb-3 text-sm">
+      <input id="email" type="email" class="w-full border rounded px-2 py-1 mb-3 text-sm">
 
-      <!-- 送信 -->
-      <button type="submit"
-        class="w-full bg-orange-300 py-2 rounded-lg text-sm font-bold mb-2">
-        送信
-      </button>
-
-      <button type="button" id="closeFeedback"
-        class="w-full bg-gray-200 py-2 rounded-lg text-sm">
-        閉じる
-      </button>
+      <button type="submit" class="w-full bg-orange-300 py-2 rounded-lg text-sm font-bold mb-2">送信</button>
+      <button type="button" id="closeFeedback" class="w-full bg-gray-200 py-2 rounded-lg text-sm">閉じる</button>
     </form>
 
-    <!-- 送信後メッセージ -->
     <div id="feedbackThanks" class="hidden text-center">
       <p class="mb-4">送信ありがとうございます！</p>
-      <button type="button" id="closeThanks"
-        class="w-full bg-gray-200 py-2 rounded-lg text-sm">
-        閉じる
-      </button>
+      <button type="button" id="closeThanks" class="w-full bg-gray-200 py-2 rounded-lg text-sm">閉じる</button>
     </div>
   </div>
 
+  <!-- ★お祝いオーバーレイ（body直下 / scriptより前 / 全画面固定） -->
+  <div id="celebrateOverlay" class="hidden fixed inset-0 z-[9999] bg-black/30 backdrop-blur-sm">
+    <div class="min-h-full flex items-center justify-center p-4 relative z-10">
+      <div class="w-full max-w-md rounded-3xl bg-white shadow-xl p-6 text-center">
+        <div class="text-5xl">🎉</div>
+        <div class="mt-3 text-2xl font-black text-slate-900">すごい。よくできたね。</div>
+        <p class="mt-2 text-slate-600 font-bold">じぶんでタップして できた！</p>
+        <button id="celebrateClose"
+                class="mt-5 w-full rounded-2xl bg-pink-500 text-white py-3 text-lg font-bold shadow active:scale-[0.99]">
+          OK
+        </button>
+      </div>
+    </div>
+
+    <!-- ★クリックを吸わない -->
+    <canvas id="confettiCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+  </div>
+
+
   <!-- ===== スクリプト群 ===== -->
+
   <!-- 問い合わせフォーム用 -->
   <script>
-    const contactButton = document.getElementById("contactButton");
-    const feedbackForm = document.getElementById("feedbackForm");
-    const closeFeedback = document.getElementById("closeFeedback");
-    const feedbackSubmitForm = document.getElementById("feedbackSubmitForm");
-    const feedbackThanks = document.getElementById("feedbackThanks");
-    const closeThanks = document.getElementById("closeThanks");
+    window.addEventListener('DOMContentLoaded', () => {
+      const contactButton = document.getElementById("contactButton");
+      const feedbackForm = document.getElementById("feedbackForm");
+      const closeFeedback = document.getElementById("closeFeedback");
+      const feedbackSubmitForm = document.getElementById("feedbackSubmitForm");
+      const feedbackThanks = document.getElementById("feedbackThanks");
+      const closeThanks = document.getElementById("closeThanks");
 
-    contactButton.addEventListener("click", () => {
-      feedbackForm.classList.remove("hidden");
-    });
+      contactButton.addEventListener("click", () => {
+        feedbackForm.classList.remove("hidden");
+      });
 
-    closeFeedback.addEventListener("click", () => {
-      feedbackForm.classList.add("hidden");
-    });
+      closeFeedback.addEventListener("click", () => {
+        feedbackForm.classList.add("hidden");
+      });
 
-    feedbackSubmitForm.addEventListener("submit", function (e) {
-      e.preventDefault();
+      feedbackSubmitForm.addEventListener("submit", function (e) {
+        e.preventDefault();
 
-      const appName = document.getElementById("appName").value;
-      const feedbackType = document.getElementById("feedbackType").value;
-      const content = document.getElementById("content").value;
-      const email = document.getElementById("email").value;
+        const appName = document.getElementById("appName").value;
+        const feedbackType = document.getElementById("feedbackType").value;
+        const content = document.getElementById("content").value;
+        const email = document.getElementById("email").value;
 
-      if (!appName) {
-        alert("アプリを選択してください。");
-        return;
-      }
+        if (!appName) {
+          alert("アプリを選択してください。");
+          return;
+        }
 
-      const subject = encodeURIComponent(`[${appName}] 問い合わせ: ${feedbackType}`);
-      const body = encodeURIComponent(
-        `アプリ：${appName}\n種別：${feedbackType}\n\n内容：\n${content}\n\nメール：${email || "未記入"}`
-      );
+        const subject = encodeURIComponent(`[${appName}] 問い合わせ: ${feedbackType}`);
+        const body = encodeURIComponent(
+          `アプリ：${appName}\n種別：${feedbackType}\n\n内容：\n${content}\n\nメール：${email || "未記入"}`
+        );
 
-      window.location.href =
-        `mailto:info.fukushi@allcare.co.jp?subject=${subject}&body=${body}`;
+        window.location.href =
+          `mailto:info.fukushi@allcare.co.jp?subject=${subject}&body=${body}`;
 
-      feedbackSubmitForm.classList.add("hidden");
-      feedbackThanks.classList.remove("hidden");
-    });
+        feedbackSubmitForm.classList.add("hidden");
+        feedbackThanks.classList.remove("hidden");
+      });
 
-    closeThanks.addEventListener("click", () => {
-      feedbackForm.classList.add("hidden");
-      feedbackSubmitForm.classList.remove("hidden");
-      feedbackThanks.classList.add("hidden");
-      feedbackSubmitForm.reset();
+      closeThanks.addEventListener("click", () => {
+        feedbackForm.classList.add("hidden");
+        feedbackSubmitForm.classList.remove("hidden");
+        feedbackThanks.classList.add("hidden");
+        feedbackSubmitForm.reset();
+      });
     });
   </script>
 
-  <!-- アプリ本体用 -->
+  <!-- アプリ本体（車＋風船） -->
   <script>
-    // DOM要素の取得
-    const settingsScreen = document.getElementById('settings-screen');
-    const mainScreen = document.getElementById('main-screen');
-    const titleInput = document.getElementById('title-input');
-    const countInput = document.getElementById('count-input');
-    const startBtn = document.getElementById('start-btn');
-    const displayTitle = document.getElementById('display-title');
-    const carContainer = document.getElementById('car-container');
-    const resetBtn = document.getElementById('reset-btn');
-    const finishMessage = document.getElementById('finish-message');
-    const decrementBtn = document.getElementById('decrement');
-    const incrementBtn = document.getElementById('increment');
-    const photoInput = document.getElementById('photo-input');
-    const photoPreview = document.getElementById('photo-preview');
-    const displayPhoto = document.getElementById('display-photo');
-  
+    window.addEventListener('DOMContentLoaded', () => {
 
-    let remainingCount = 0;
+      // ===== 共通：DOM =====
+      const settingsScreen = document.getElementById('settings-screen');
+      const mainScreen = document.getElementById('main-screen');
+      const balloonScreen = document.getElementById('balloon-screen');
 
-    // 番号付きのゆるかわ車のSVGアイコンを生成する関数
-    function createCarSVG(number) {
-      return `
-      <svg viewBox="0 0 140 100" class="w-20 h-20 sm:w-24 sm:h-24">
-        <g stroke-linecap="round" stroke-linejoin="round">
-          <path
-            d="M18 60
-               Q20 40 40 35
-               H85
-               Q105 35 120 55
-               Q124 60 122 70
-               Q120 82 108 84
-               H32
-               Q20 82 18 72
-               Q16 66 18 60
-               Z"
-            fill="currentColor"
-            opacity="0.9"
-          />
-          <path
-            d="M40 35
-               Q55 18 75 18
-               Q95 18 108 35"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="4"
-            opacity="0.35"
-          />
-          <rect
-            x="47"
-            y="30"
-            width="46"
-            height="24"
-            rx="10"
-            ry="10"
-            fill="none"
-            stroke="#ffffff"
-            stroke-width="2.2"
-            opacity="0.7"
-          />
-          <circle cx="60" cy="43" r="9" fill="#ffffff" />
-          <circle cx="80" cy="43" r="9" fill="#ffffff" />
-          <circle cx="60" cy="43" r="4.8" fill="#333333" />
-          <circle cx="80" cy="43" r="4.8" fill="#333333" />
-          <path
-            d="M63 53 Q70 57 77 53"
-            fill="none"
-            stroke="#ffffff"
-            stroke-width="2.8"
-          />
-          <circle cx="42" cy="80" r="9.5" fill="#555555" />
-          <circle cx="96" cy="80" r="9.5" fill="#555555" />
-          <circle cx="42" cy="80" r="4.5" fill="#e5e5e5" opacity="0.85" />
-          <circle cx="96" cy="80" r="4.5" fill="#e5e5e5" opacity="0.85" />
-          <text
-            x="50%"
-            y="78%"
-            text-anchor="middle"
-            font-size="32"
-            font-weight="bold"
-            fill="#ffffff"
-            stroke="#000000"
-            stroke-width="2"
-            style="font-family: 'M PLUS Rounded 1c', sans-serif;"
-          >
-            ${number}
-          </text>
-        </g>
-      </svg>
-      `;
-    }
+      const titleInput = document.getElementById('title-input');
+      const countInput = document.getElementById('count-input');
+      const startBtn = document.getElementById('start-btn');
 
-    const carColors = [
-      'text-sky-300',
-      'text-emerald-300',
-      'text-amber-300',
-      'text-pink-300',
-      'text-violet-300',
-      'text-lime-300',
-      'text-orange-300',
-      'text-teal-300'
-    ];
+      const displayTitle = document.getElementById('display-title');
+      const carContainer = document.getElementById('car-container');
+      const resetBtn = document.getElementById('reset-btn');
+      const finishMessage = document.getElementById('finish-message');
 
-    // 写真が選択されたときの処理
-    photoInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (file) {
+      const decrementBtn = document.getElementById('decrement');
+      const incrementBtn = document.getElementById('increment');
+
+      const photoInput = document.getElementById('photo-input');
+      const photoPreview = document.getElementById('photo-preview');
+      const displayPhoto = document.getElementById('display-photo');
+
+      // 風船設定
+      const balloonMinutesInput = document.getElementById('balloon-minutes');
+      const balloonDec = document.getElementById('balloonDec');
+      const balloonInc = document.getElementById('balloonInc');
+      const balloonStartBtn = document.getElementById('balloonStartBtn');
+
+      // 風船画面
+      const balloonTimerEl = document.getElementById('balloonTimer');
+      const balloonBtn = document.getElementById('balloonBtn');
+      const balloonWrap = document.getElementById('balloonWrap');
+      const tapBadge = document.getElementById('tapBadge');
+      const balloonRestart = document.getElementById('balloonRestart');
+      const balloonBack = document.getElementById('balloonBack');
+      const balloonTypeLabel = document.getElementById('balloonTypeLabel');
+
+      // お祝い（body直下）
+      const celebrateOverlay = document.getElementById('celebrateOverlay');
+      const celebrateClose = document.getElementById('celebrateClose');
+      const confettiCanvas = document.getElementById('confettiCanvas');
+
+      // ===== 車アプリ =====
+      let remainingCount = 0;
+
+      function createCarSVG(number) {
+        return `
+        <svg viewBox="0 0 140 100" class="w-20 h-20 sm:w-24 sm:h-24">
+          <g stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M18 60
+                 Q20 40 40 35
+                 H85
+                 Q105 35 120 55
+                 Q124 60 122 70
+                 Q120 82 108 84
+                 H32
+                 Q20 82 18 72
+                 Q16 66 18 60
+                 Z"
+              fill="currentColor"
+              opacity="0.9"
+            />
+            <path
+              d="M40 35
+                 Q55 18 75 18
+                 Q95 18 108 35"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="4"
+              opacity="0.35"
+            />
+            <rect
+              x="47"
+              y="30"
+              width="46"
+              height="24"
+              rx="10"
+              ry="10"
+              fill="none"
+              stroke="#ffffff"
+              stroke-width="2.2"
+              opacity="0.7"
+            />
+            <circle cx="60" cy="43" r="9" fill="#ffffff" />
+            <circle cx="80" cy="43" r="9" fill="#ffffff" />
+            <circle cx="60" cy="43" r="4.8" fill="#333333" />
+            <circle cx="80" cy="43" r="4.8" fill="#333333" />
+            <path d="M63 53 Q70 57 77 53" fill="none" stroke="#ffffff" stroke-width="2.8" />
+            <circle cx="42" cy="80" r="9.5" fill="#555555" />
+            <circle cx="96" cy="80" r="9.5" fill="#555555" />
+            <circle cx="42" cy="80" r="4.5" fill="#e5e5e5" opacity="0.85" />
+            <circle cx="96" cy="80" r="4.5" fill="#e5e5e5" opacity="0.85" />
+            <text
+              x="50%"
+              y="78%"
+              text-anchor="middle"
+              font-size="32"
+              font-weight="bold"
+              fill="#ffffff"
+              stroke="#000000"
+              stroke-width="2"
+              style="font-family: 'M PLUS Rounded 1c', sans-serif;"
+            >${number}</text>
+          </g>
+        </svg>`;
+      }
+
+      const carColors = [
+        'text-sky-300','text-emerald-300','text-amber-300','text-pink-300',
+        'text-violet-300','text-lime-300','text-orange-300','text-teal-300'
+      ];
+
+      // 写真プレビュー
+      photoInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
           photoPreview.src = e.target.result;
           photoPreview.classList.remove('hidden');
         };
         reader.readAsDataURL(file);
+      });
+
+      // カウント増減（車）
+      decrementBtn.addEventListener('click', () => {
+        let v = parseInt(countInput.value);
+        if (v > parseInt(countInput.min)) countInput.value = v - 1;
+      });
+      incrementBtn.addEventListener('click', () => {
+        let v = parseInt(countInput.value);
+        if (v < parseInt(countInput.max)) countInput.value = v + 1;
+      });
+
+      // スタート（車）
+      startBtn.addEventListener('click', () => {
+        const title = titleInput.value.trim() === '' ? '' : titleInput.value;
+        const count = parseInt(countInput.value);
+        const photoSrc = photoPreview.src;
+
+        if (count > 0) {
+          setupMainScreen(title, count, photoSrc);
+          settingsScreen.classList.add('hidden');
+          balloonScreen.classList.add('hidden');
+          mainScreen.classList.remove('hidden');
+        }
+      });
+
+      function setupMainScreen(title, count, photoSrc) {
+        displayTitle.textContent = `${title} あと ${count}かい`;
+
+        if (photoSrc && photoSrc !== window.location.href) {
+          displayPhoto.src = photoSrc;
+          displayPhoto.classList.remove('hidden');
+        } else {
+          displayPhoto.classList.add('hidden');
+        }
+
+        carContainer.innerHTML = '';
+        remainingCount = count;
+
+        for (let i = 0; i < count; i++) {
+          const carWrapper = document.createElement('div');
+          carWrapper.innerHTML = createCarSVG(i + 1);
+          carWrapper.className = `car-icon ${carColors[i % carColors.length]}`;
+          carWrapper.addEventListener('click', carClickListener);
+          carContainer.appendChild(carWrapper);
+        }
       }
-    });
 
-    // カウント増減ボタンの処理
-    decrementBtn.addEventListener('click', () => {
-      let currentValue = parseInt(countInput.value);
-      if (currentValue > countInput.min) {
-        countInput.value = currentValue - 1;
+      function carClickListener(event) {
+        const car = event.currentTarget;
+        if (car.classList.contains('departing')) return;
+
+        car.classList.add('departing');
+        remainingCount--;
+
+        setTimeout(() => { car.style.visibility = 'hidden'; }, 800);
+
+        if (remainingCount > 0) {
+          displayTitle.textContent = `あと ${remainingCount}かい`;
+        } else {
+          displayTitle.textContent = 'よくできました！';
+          setTimeout(() => { finishMessage.classList.remove('hidden'); }, 1000);
+        }
+
+        car.removeEventListener('click', carClickListener);
       }
-    });
 
-    incrementBtn.addEventListener('click', () => {
-      let currentValue = parseInt(countInput.value);
-      if (currentValue < countInput.max) {
-        countInput.value = currentValue + 1;
+      // リセット（車）
+      resetBtn.addEventListener('click', () => {
+        mainScreen.classList.add('hidden');
+        balloonScreen.classList.add('hidden');
+        settingsScreen.classList.remove('hidden');
+        titleInput.value = '';
+        photoInput.value = '';
+        photoPreview.src = '';
+        photoPreview.classList.add('hidden');
+      });
+
+      // おしまい（車）
+      finishMessage.addEventListener('click', () => {
+        finishMessage.classList.add('hidden');
+        mainScreen.classList.add('hidden');
+        balloonScreen.classList.add('hidden');
+        settingsScreen.classList.remove('hidden');
+        titleInput.value = '';
+        photoInput.value = '';
+        photoPreview.src = '';
+        photoPreview.classList.add('hidden');
+      });
+
+
+      // ===== 風船：分数UI（2〜10） =====
+      function clampMinutes(v) { return Math.min(10, Math.max(2, v)); }
+
+      balloonDec.addEventListener('click', () => {
+        balloonMinutesInput.value = clampMinutes(parseInt(balloonMinutesInput.value || '3') - 1);
+      });
+      balloonInc.addEventListener('click', () => {
+        balloonMinutesInput.value = clampMinutes(parseInt(balloonMinutesInput.value || '3') + 1);
+      });
+      balloonMinutesInput.addEventListener('change', () => {
+        balloonMinutesInput.value = clampMinutes(parseInt(balloonMinutesInput.value || '3'));
+      });
+
+      // ===== 風船タイプ =====
+      function getSelectedBalloonType() {
+        const checked = document.querySelector('input[name="balloonType"]:checked');
+        return checked ? checked.value : 'round';
       }
-    });
+      function typeLabel(type) {
+        if (type === 'car') return '（くるまふうせん）';
+        if (type === 'strawberry') return '（いちごふうせん）';
+        return '（ふうせん）';
+      }
 
-    // スタートボタンの処理
-    startBtn.addEventListener('click', () => {
-      const title = titleInput.value.trim() === '' ? '': titleInput.value;
-      const count = parseInt(countInput.value);
-      const photoSrc = photoPreview.src;
+      function balloonSVG(type) {
+        if (type === 'car') {
+          return `
+            <svg width="260" height="300" viewBox="0 0 260 300" class="drop-shadow-xl">
+              <path d="M132 200 C 105 228, 155 238, 122 285" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+              <path d="M132 184 L116 202 L148 202 Z" fill="#60a5fa"/>
+              <rect x="55" y="40" rx="48" ry="48" width="150" height="120" fill="#60a5fa"/>
+              <path d="M78 98 Q130 36 182 98" fill="#60a5fa" opacity="0.95"/>
+              <circle cx="92" cy="156" r="14" fill="#334155" opacity="0.9"/>
+              <circle cx="168" cy="156" r="14" fill="#334155" opacity="0.9"/>
+              <circle cx="92" cy="156" r="6" fill="#e2e8f0"/>
+              <circle cx="168" cy="156" r="6" fill="#e2e8f0"/>
+              <circle cx="104" cy="112" r="8" fill="#0f172a" opacity="0.9"/>
+              <circle cx="156" cy="112" r="8" fill="#0f172a" opacity="0.9"/>
+              <path d="M116 132 Q130 146 144 132" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+              <path d="M82 66 h96" stroke="white" stroke-opacity="0.35" stroke-width="12" stroke-linecap="round"/>
+            </svg>
+          `;
+        }
 
-      if (count > 0) {
-        setupMainScreen(title, count, photoSrc);
+        if (type === 'strawberry') {
+          return `
+            <svg width="260" height="300" viewBox="0 0 260 300" class="drop-shadow-xl">
+              <path d="M132 200 C 105 228, 155 238, 122 285" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+              <path d="M132 184 L116 202 L148 202 Z" fill="#f43f5e"/>
+              <path d="M130 44
+                       C 182 44, 214 82, 214 126
+                       C 214 190, 170 214, 130 222
+                       C 90 214, 46 190, 46 126
+                       C 46 82, 78 44, 130 44 Z" fill="#f43f5e"/>
+              <path d="M86 50
+                       C 102 34, 116 32, 130 46
+                       C 144 32, 158 34, 174 50
+                       C 156 62, 142 66, 130 62
+                       C 118 66, 104 62, 86 50 Z" fill="#22c55e"/>
+              <g fill="#ffe4e6" opacity="0.95">
+                <ellipse cx="100" cy="118" rx="5" ry="8"/>
+                <ellipse cx="130" cy="110" rx="5" ry="8"/>
+                <ellipse cx="160" cy="118" rx="5" ry="8"/>
+                <ellipse cx="112" cy="150" rx="5" ry="8"/>
+                <ellipse cx="148" cy="150" rx="5" ry="8"/>
+                <ellipse cx="130" cy="182" rx="5" ry="8"/>
+              </g>
+              <path d="M88 86 C 72 110, 72 146, 88 170" fill="none" stroke="white" stroke-opacity="0.32" stroke-width="14" stroke-linecap="round"/>
+              <circle cx="116" cy="164" r="7" fill="#0f172a" opacity="0.9"/>
+              <circle cx="144" cy="164" r="7" fill="#0f172a" opacity="0.9"/>
+              <path d="M120 178 Q130 188 140 178" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+            </svg>
+          `;
+        }
+
+        // round
+        return `
+          <svg width="260" height="300" viewBox="0 0 260 300" class="drop-shadow-xl">
+            <path d="M132 200 C 105 228, 155 238, 122 285" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+            <path d="M132 184 L116 202 L148 202 Z" fill="#fb7185"/>
+            <path d="M130 30
+                     C 195 30, 230 82, 230 140
+                     C 230 205, 178 240, 130 240
+                     C 82 240, 30 205, 30 140
+                     C 30 82, 65 30, 130 30 Z" fill="#fb7185"/>
+            <path d="M92 70 C 70 104, 70 140, 92 176"
+                  fill="none" stroke="white" stroke-opacity="0.55" stroke-width="14" stroke-linecap="round"/>
+            <circle cx="108" cy="158" r="9" fill="#0f172a" opacity="0.9"/>
+            <circle cx="152" cy="158" r="9" fill="#0f172a" opacity="0.9"/>
+            <path d="M118 182 Q130 198 142 182" stroke="#0f172a" stroke-width="7" fill="none" stroke-linecap="round"/>
+          </svg>
+        `;
+      }
+
+      // ===== 風船タイマー本体 =====
+      let popped = false;
+      let balloonRaf = 0;
+      let balloonStartAt = 0;
+      let balloonDurationMs = 3 * 60 * 1000;
+      let currentBalloonType = 'round';
+
+      const BALLOON_START_SCALE = 0.65;
+      const BALLOON_END_SCALE   = 1.85;
+
+      function fmtMMSS(ms) {
+        const total = Math.max(0, Math.ceil(ms / 1000));
+        const m = String(Math.floor(total / 60)).padStart(2, '0');
+        const s = String(total % 60).padStart(2, '0');
+        return `${m}:${s}`;
+      }
+
+      function setBalloonScale(scale) {
+        balloonWrap.style.setProperty('--balloonScale', String(scale));
+        if (!balloonWrap.classList.contains('wobble')) {
+          balloonWrap.style.transform = `scale(${scale})`;
+        }
+      }
+
+      function renderBalloon(type) {
+        balloonWrap.innerHTML = balloonSVG(type);
+        balloonTypeLabel.textContent = typeLabel(type);
+      }
+
+      function resetBalloonVisual() {
+        popped = false;
+        tapBadge.classList.remove('hidden');
+        balloonWrap.classList.remove('wobble');
+        balloonWrap.style.transition = '';
+        balloonWrap.style.opacity = '1';
+        balloonWrap.style.filter = 'none';
+        setBalloonScale(BALLOON_START_SCALE);
+        balloonTimerEl.textContent = fmtMMSS(balloonDurationMs);
+      }
+
+      function startBalloonGrowth() {
+        cancelAnimationFrame(balloonRaf);
+        balloonStartAt = performance.now();
+
+        const tick = (now) => {
+          const elapsed = now - balloonStartAt;
+          const t = Math.min(1, elapsed / balloonDurationMs);
+
+          const eased = 1 - Math.pow(1 - t, 3);
+          const scale = BALLOON_START_SCALE + (BALLOON_END_SCALE - BALLOON_START_SCALE) * eased;
+
+          const remaining = balloonDurationMs - elapsed;
+          balloonTimerEl.textContent = fmtMMSS(remaining);
+
+          setBalloonScale(scale);
+
+          // 残り60秒で“ぷるぷる”
+          if (remaining <= 60 * 1000 && !balloonWrap.classList.contains('wobble')) {
+            balloonWrap.classList.add('wobble');
+          }
+
+          balloonRaf = requestAnimationFrame(tick);
+        };
+
+        balloonRaf = requestAnimationFrame(tick);
+      }
+
+      function openBalloonScreen() {
         settingsScreen.classList.add('hidden');
-        mainScreen.classList.remove('hidden');
-      }
-    });
-
-    // メイン画面のセットアップ
-    function setupMainScreen(title, count, photoSrc) {
-      displayTitle.textContent = `${title} あと ${count}かい`;
-
-      if (photoSrc && photoSrc !== window.location.href) {
-        displayPhoto.src = photoSrc;
-        displayPhoto.classList.remove('hidden');
-      } else {
-        displayPhoto.classList.add('hidden');
+        mainScreen.classList.add('hidden');
+        balloonScreen.classList.remove('hidden');
       }
 
-      carContainer.innerHTML = '';
-      remainingCount = count;
+      function popBalloon() {
+        if (popped) return;
+        popped = true;
 
-      for (let i = 0; i < count; i++) {
-        const carWrapper = document.createElement('div');
-        carWrapper.innerHTML = createCarSVG(i + 1);
-        carWrapper.className = `car-icon ${carColors[i % carColors.length]}`;
-        carWrapper.addEventListener('click', carClickListener);
-        carContainer.appendChild(carWrapper);
-      }
-    }
+        tapBadge.classList.add('hidden');
+        balloonWrap.classList.remove('wobble');
+        balloonWrap.style.transition = 'transform 220ms ease, opacity 220ms ease, filter 220ms ease';
+        balloonWrap.style.transform = `scale(${BALLOON_START_SCALE})`;
+        balloonWrap.style.opacity = '0';
+        balloonWrap.style.filter = 'blur(2px)';
 
-    // 車アイコンクリック時の処理
-    function carClickListener(event) {
-      const car = event.currentTarget;
-
-      if (car.classList.contains('departing')) return;
-
-      car.classList.add('departing');
-      remainingCount--;
-
-      setTimeout(() => {
-        car.style.visibility = 'hidden';
-      }, 800);
-
-      if (remainingCount > 0) {
-       displayTitle.textContent = `あと ${remainingCount}かい`;
-      } else {
-        displayTitle.textContent = 'よくできました！';
-        setTimeout(() => {
-          finishMessage.classList.remove('hidden');
-        }, 1000);
+        cancelAnimationFrame(balloonRaf);
+        setTimeout(() => { openCelebrate(); }, 180);
       }
 
-      car.removeEventListener('click', carClickListener);
-    }
+      // ===== 紙吹雪（クラッカー風） =====
+      let confettiCtx, confettiParticles = [], confettiRaf = 0;
 
-        // リセットボタンの処理
-    resetBtn.addEventListener('click', () => {
-      mainScreen.classList.add('hidden');
-      settingsScreen.classList.remove('hidden');
-      titleInput.value = '';
-      photoInput.value = '';
-      photoPreview.src = '';
-      photoPreview.classList.add('hidden');
-    });
+      function resizeConfetti() {
+        const dpr = devicePixelRatio || 1;
+        confettiCanvas.width = Math.floor(confettiCanvas.clientWidth * dpr);
+        confettiCanvas.height = Math.floor(confettiCanvas.clientHeight * dpr);
+        confettiCtx = confettiCanvas.getContext('2d');
+        confettiCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
 
-    // おしまいメッセージをクリックしたらリセット
-    finishMessage.addEventListener('click', () => {
-      finishMessage.classList.add('hidden');
-      mainScreen.classList.add('hidden');
-      settingsScreen.classList.remove('hidden');
-      titleInput.value = '';
-      photoInput.value = '';
-      photoPreview.src = '';
-      photoPreview.classList.add('hidden');
+      function makeConfettiBurst() {
+        confettiParticles = [];
+        const count = 140;
+        const w = confettiCanvas.clientWidth;
+        const h = confettiCanvas.clientHeight;
+
+        for (let i = 0; i < count; i++) {
+          confettiParticles.push({
+            x: w / 2,
+            y: h * 0.35,
+            vx: (Math.random() * 10 - 5),
+            vy: (Math.random() * -10 - 2),
+            g: 0.18 + Math.random() * 0.14,
+            r: 2 + Math.random() * 4,
+            a: 1,
+            spin: (Math.random() * 0.25 - 0.125),
+            rot: Math.random() * Math.PI,
+            c: ['#fb7185','#60a5fa','#34d399','#fbbf24','#a78bfa'][Math.floor(Math.random()*5)]
+          });
+        }
+      }
+
+      function drawConfetti() {
+        const ctx = confettiCtx;
+        if (!ctx) return;
+
+        ctx.clearRect(0, 0, confettiCanvas.clientWidth, confettiCanvas.clientHeight);
+
+        confettiParticles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.g;
+          p.a *= 0.992;
+          p.rot += p.spin;
+
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.a);
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.c;
+          ctx.fillRect(-p.r, -p.r, p.r * 2.2, p.r * 1.4);
+          ctx.restore();
+        });
+
+        confettiParticles = confettiParticles.filter(p => p.a > 0.08 && p.y < confettiCanvas.clientHeight + 40);
+
+        if (confettiParticles.length > 0) confettiRaf = requestAnimationFrame(drawConfetti);
+      }
+
+      function openCelebrate() {
+        celebrateOverlay.classList.remove('hidden');
+
+        // ★表示が反映されてcanvasサイズが確定してから飛ばす（飛び出す演出が戻る）
+        requestAnimationFrame(() => {
+          resizeConfetti();
+          makeConfettiBurst();
+          cancelAnimationFrame(confettiRaf);
+          confettiRaf = requestAnimationFrame(drawConfetti);
+        });
+      }
+
+      function closeCelebrate() {
+        celebrateOverlay.classList.add('hidden');
+        cancelAnimationFrame(confettiRaf);
+      }
+
+      // ===== 風船：開始ボタン =====
+      balloonStartBtn.addEventListener('click', () => {
+        const minutes = clampMinutes(parseInt(balloonMinutesInput.value || '3'));
+        balloonMinutesInput.value = minutes;
+        balloonDurationMs = minutes * 60 * 1000;
+
+        currentBalloonType = getSelectedBalloonType();
+
+        openBalloonScreen();
+        renderBalloon(currentBalloonType);
+        resetBalloonVisual();
+        startBalloonGrowth();
+      });
+
+      // 風船タップ（いつでも割れる）
+      balloonBtn.addEventListener('click', popBalloon);
+
+      balloonRestart.addEventListener('click', () => {
+        renderBalloon(currentBalloonType);
+        resetBalloonVisual();
+        startBalloonGrowth();
+      });
+
+      balloonBack.addEventListener('click', () => {
+        cancelAnimationFrame(balloonRaf);
+        closeCelebrate();
+        balloonScreen.classList.add('hidden');
+        settingsScreen.classList.remove('hidden');
+      });
+
+      celebrateClose.addEventListener('click', closeCelebrate);
+
+      window.addEventListener('resize', () => {
+        if (!celebrateOverlay.classList.contains('hidden')) resizeConfetti();
+      });
+
     });
   </script>
+
 </body>
 </html>
+
