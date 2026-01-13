@@ -694,15 +694,26 @@
       const STAGE_TOTAL_MS = 180000;
 
       function stageFromEndgameElapsed(ms, endgameTotal) {
-  // 30/30/60/60（合計180秒）を、endgameTotal に比例縮小する
-  const t1 = endgameTotal * (30 / 180);   // ①終わり
-  const t2 = endgameTotal * (60 / 180);   // ②終わり
-  const t3 = endgameTotal * (120 / 180);  // ③終わり
+  // 5段階:
+  // 0: 何もなし
+  // 1: 汗1滴
+  // 2: 汗いっぱい
+  // 3: ぷるぷる
+  // 4: 赤枠
 
-  if (ms < t1) return 0;   // ①汗1滴
-  if (ms < t2) return 1;   // ②汗いっぱい
-  if (ms < t3) return 2;   // ③ぷるぷる
-  return 3;                // ④赤枠
+  const t0 = endgameTotal * (30 / 180);    // 0→1 境界（1/6）
+  const t1 = endgameTotal * (60 / 180);    // 1→2 境界（2/6）
+  const t2 = endgameTotal * (120 / 180);   // 2→3 境界（4/6）
+  // t2以降は 3（ぷるぷる）→ 4（赤枠）にしたいので、赤枠開始をさらに後ろに置く
+  // 「最後まで」を赤枠にするなら、赤枠は終盤の最後の区間（残り 2/6 相当）でON
+  // つまり 4/6〜は ぷるぷる、最後の 2/6 で赤枠
+  const t3 = endgameTotal * (150 / 180);   // 3→4 境界（5/6）※ここだけ新設
+
+  if (ms < t0) return 0;   // ①何もなし
+  if (ms < t1) return 1;   // ②汗1滴
+  if (ms < t2) return 2;   // ③汗いっぱい
+  if (ms < t3) return 3;   // ④ぷるぷる
+  return 4;                // ⑤赤枠
 }
 
       function fmtMMSS(ms) {
@@ -729,38 +740,34 @@
       }
 
       // ★段階ごとの汗HTML（SVG内）
-      function setSweat(stage) {
-        const sweat = getSweatLayer();
-        if (!sweat) return;
+      function setSweat(level) {
+  const sweat = getSweatLayer();
+  if (!sweat) return;
 
-        if (stage < 0) {
-          sweat.setAttribute('opacity', '0');
-          sweat.innerHTML = `<text class="drip d1" x="190" y="95" font-size="32">💧</text>`;
-          return;
-        }
+  // level: 0=1滴, 1=いっぱい（3滴）
+  sweat.setAttribute('opacity', '1');
 
-        sweat.setAttribute('opacity', '1');
+  if (level === 0) {
+    sweat.innerHTML = `<text class="drip d1" x="190" y="95" font-size="32">💧</text>`;
+    return;
+  }
 
-        if (stage === 0) {
-          // ① 1滴
-          sweat.innerHTML = `<text class="drip d1" x="190" y="95" font-size="32">💧</text>`;
-          return;
-        }
-
-        // ② いっぱい（3滴）
-        sweat.innerHTML = `
-          <text class="drip d1" x="190" y="95" font-size="32">💧</text>
-          <text class="drip d2" x="168" y="115" font-size="28">💧</text>
-          <text class="drip d3" x="205" y="120" font-size="28">💧</text>
-        `;
-      }
-
+  sweat.innerHTML = `
+    <text class="drip d1" x="190" y="95" font-size="32">💧</text>
+    <text class="drip d2" x="168" y="115" font-size="28">💧</text>
+    <text class="drip d3" x="205" y="120" font-size="28">💧</text>
+  `;
+}
       function clearActions() {
-        setSweat(-1);
-        balloonWrap.classList.remove('wobble');
-        balloonWrap.classList.remove('warning');
-        balloonCard.classList.remove('alert-frame');
-      }
+  const sweat = getSweatLayer();
+  if (sweat) {
+    sweat.setAttribute('opacity', '0');
+    sweat.innerHTML = `<text class="drip d1" x="190" y="95" font-size="32">💧</text>`;
+  }
+  balloonWrap.classList.remove('wobble');
+  balloonWrap.classList.remove('warning');
+  balloonCard.classList.remove('alert-frame');
+}
 
       function resetBalloonVisual() {
         popped = false;
@@ -788,14 +795,14 @@
         // いったん外してから付け直し
         clearActions();
 
-        // 汗
-        if (stage >= 0) setSweat(stage);
+        // 0: 何もなし → 汗は出さない
+if (stage >= 1) setSweat(stage - 1); // 1→汗1滴(0), 2→汗いっぱい(1)
 
-        // ③ぷるぷる
-        if (stage >= 2) balloonWrap.classList.add('wobble');
+// ④ぷるぷる（stage 3 から）
+if (stage >= 3) balloonWrap.classList.add('wobble');
 
-        // ④カード外枠警告
-        if (stage >= 3) balloonCard.classList.add('alert-frame');
+// ⑤赤枠（stage 4 から）
+if (stage >= 4) balloonCard.classList.add('alert-frame');
       }
 
       function startBalloonGrowth() {
