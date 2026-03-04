@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>あとなんかい？アプリ</title>
 
   <!-- Webアプリアイコン -->
@@ -42,30 +42,84 @@
     .finish-popup { animation: bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     @keyframes bounce-in { 0% { opacity:0; transform: scale(0.3);} 100%{opacity:1; transform: scale(1);} }
 
-    /* 風船：ぷるぷる */
-    @keyframes wobble {
-      0%   { transform: translateY(0) rotate(0deg) scale(var(--balloonScale, 1)); }
-      15%  { transform: translateY(-2px) rotate(-2deg) scale(var(--balloonScale, 1)); }
-      30%  { transform: translateY(1px) rotate(2deg) scale(var(--balloonScale, 1)); }
-      45%  { transform: translateY(-2px) rotate(-1deg) scale(var(--balloonScale, 1)); }
-      60%  { transform: translateY(1px) rotate(2deg) scale(var(--balloonScale, 1)); }
-      75%  { transform: translateY(-1px) rotate(-2deg) scale(var(--balloonScale, 1)); }
-      100% { transform: translateY(0) rotate(0deg) scale(var(--balloonScale, 1)); }
-    }
-    .wobble { animation: wobble 0.45s ease-in-out infinite; transform-origin: 50% 80%; }
+/* ===== 風船レイヤー（背面表示 & UIは前面） ===== */
+.balloon-stage{
+  position: relative;
+  overflow: hidden; /* visible → hidden */
+}
 
-    /* 風船：警告ちかちか（本体が交互に強調） */
-    @keyframes warningFlash {
-      0%, 100% { filter: none; }
-      50% { filter: brightness(1.2) saturate(1.4) drop-shadow(0 0 16px rgba(239,68,68,0.55)); }
-    }
-    .warning { animation: warningFlash 0.55s ease-in-out infinite; }
+.balloon-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;            /* 背面 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;  /* 背面は基本クリック不可（クリックは別レイヤーで取る） */
+}
+
+#balloonWrap{
+  transform:
+    translateY(var(--balloonShiftY, 0px))
+    scale(var(--balloonScale, 1));
+  transform-origin: 50% 80%;
+}
+
+/* 風船そのもの（JSで transform: scale() される） */
+#balloonWrap {
+  position: relative;
+  will-change: transform;
+}
+
+/* タイマー/説明は前面、かつタップを邪魔しない */
+.balloon-ui {
+  position: relative;
+  z-index: 20;           /* 前面 */
+  pointer-events: none;  /* ここはタップ透過 */
+}
+
+/* 上のUIを半透明に（風船が透けて見える） */
+.balloon-ui{
+  background: rgba(255,255,255,0.85); /* 0.55 → 0.85 */
+  backdrop-filter: blur(4px);
+  border-radius: 16px;
+  padding: 12px;
+  position: relative;
+  z-index: 40; /* 念のため前面固定 */
+}
+
+/* ただし下の操作ボタンは押せるように戻す */
+.balloon-actions {
+  position: relative;
+  z-index: 30;
+  pointer-events: auto;
+}
+
+/* balloonAreaの中だけでタップ領域を管理（下のボタンを覆わない） */
+#balloonArea { position: relative; }
+#balloonBtn{
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: fit-content;
+  height: fit-content;
+}
+
+    /* 風船：ぷるぷる（scaleはCSS変数を使う） */
+   @keyframes wobble {
+  0%   { transform: translateY(var(--balloonShiftY, 0px)) scale(var(--balloonScale, 1)) rotate(0deg); }
+  25%  { transform: translateY(var(--balloonShiftY, 0px)) scale(var(--balloonScale, 1)) rotate(-3deg); }
+  50%  { transform: translateY(var(--balloonShiftY, 0px)) scale(var(--balloonScale, 1)) rotate(3deg); }
+  75%  { transform: translateY(var(--balloonShiftY, 0px)) scale(var(--balloonScale, 1)) rotate(-2deg); }
+  100% { transform: translateY(var(--balloonShiftY, 0px)) scale(var(--balloonScale, 1)) rotate(0deg); }
+}
+.wobble { animation: wobble 0.45s ease-in-out infinite; transform-origin: 50% 85%; }
 
     /* ★カード外枠：赤枠ちかちか（風船に隠れない） */
     @keyframes alertFrameFlash {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
-      50% { box-shadow: 0 0 0 12px rgba(239,68,68,0.9); }
-    }
+  0%, 100% { box-shadow: inset 0 0 0 0 rgba(239,68,68,0); }
+  50%      { box-shadow: inset 0 0 0 12px rgba(239,68,68,0.9); }
+}
     .alert-frame {
       animation: alertFrameFlash 0.6s ease-in-out infinite;
       border-radius: 1.5rem; /* rounded-2xl相当 */
@@ -82,11 +136,10 @@
     .drip {
       transform-box: fill-box;
       transform-origin: center;
-      animation: dripFall 1.1s ease-in-out infinite;
+      animation: dripFall 1.05s ease-in-out infinite;
     }
     .drip.d2 { animation-delay: 0.22s; }
     .drip.d3 { animation-delay: 0.44s; }
-
     @keyframes dripFall {
       0%   { transform: translateY(-2px); opacity: 0; }
       12%  { opacity: 1; }
@@ -125,13 +178,13 @@
         <div class="space-y-3">
           <label for="count-input" class="block text-sm font-medium text-gray-700 mb-1">なんかい？</label>
           <div class="flex items-center justify-center space-x-4">
-            <button id="decrement" class="px-4 py-2 bg-amber-400 text-white rounded-full font-bold text-lg">-</button>
+            <button id="decrement" type="button" class="px-4 py-2 bg-amber-400 text-white rounded-full font-bold text-lg">-</button>
             <input type="number" id="count-input" value="3" min="1" max="20"
                    class="w-20 text-center text-xl font-bold border-transparent focus:outline-none focus:ring-0">
-            <button id="increment" class="px-4 py-2 bg-amber-400 text-white rounded-full font-bold text-lg">+</button>
+            <button id="increment" type="button" class="px-4 py-2 bg-amber-400 text-white rounded-full font-bold text-lg">+</button>
           </div>
 
-          <button id="start-btn"
+          <button id="start-btn" type="button"
                   class="w-full py-3 bg-orange-500 text-white font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors text-lg">
             あとなんかい？スタート
           </button>
@@ -144,10 +197,10 @@
           </label>
 
           <div class="flex items-center justify-center space-x-4">
-            <button id="balloonDec" class="px-4 py-2 bg-pink-400 text-white rounded-full font-bold text-lg">-</button>
+            <button id="balloonDec" type="button" class="px-4 py-2 bg-pink-400 text-white rounded-full font-bold text-lg">-</button>
             <input type="number" id="balloon-minutes" value="3" min="1" max="5"
                    class="w-20 text-center text-xl font-bold border-transparent focus:outline-none focus:ring-0">
-            <button id="balloonInc" class="px-4 py-2 bg-pink-400 text-white rounded-full font-bold text-lg">+</button>
+            <button id="balloonInc" type="button" class="px-4 py-2 bg-pink-400 text-white rounded-full font-bold text-lg">+</button>
           </div>
 
           <!-- 3種選択 -->
@@ -222,7 +275,7 @@
             </div>
           </div>
 
-          <button id="balloonStartBtn"
+          <button id="balloonStartBtn" type="button"
                   class="w-full py-3 bg-pink-500 text-white font-bold rounded-lg shadow-md hover:bg-pink-600 transition-colors text-lg">
             🎈 タイマースタート
           </button>
@@ -234,67 +287,74 @@
         <h2 id="display-title" class="text-3xl font-bold mb-4 text-amber-700"></h2>
         <img id="display-photo" class="hidden mb-6 rounded-lg shadow-md max-h-60 mx-auto" src="" alt="Uploaded photo">
         <div id="car-container" class="flex flex-wrap justify-center items-center gap-4 mb-8"></div>
-        <button id="reset-btn" class="py-2 px-6 bg-white text-amber-600 border-2 border-amber-500 font-bold rounded-lg shadow-sm hover:bg-amber-50 transition-colors">
+        <button id="reset-btn" type="button"
+                class="py-2 px-6 bg-white text-amber-600 border-2 border-amber-500 font-bold rounded-lg shadow-sm hover:bg-amber-50 transition-colors">
           リセット
         </button>
       </div>
 
-      <!-- 風船画面 -->
-      <div id="balloon-screen" class="hidden">
-        <!-- ★カードにID付与（外枠警告用） -->
-        <div id="balloonCard" class="p-6 bg-white rounded-2xl shadow-lg">
-          <div class="flex items-center justify-between">
-            <div class="font-bold text-slate-700">⏱ タイマー</div>
-            <div class="text-2xl font-black tabular-nums text-slate-900" id="balloonTimer">03:00</div>
-          </div>
+     <!-- 風船画面 -->
+<div id="balloon-screen" class="hidden">
+  <div id="balloonCard" class="p-6 bg-white rounded-2xl shadow-lg balloon-stage">
 
-          <!-- 視覚メーター -->
-          <div class="mt-3">
-            <div class="w-full h-4 bg-slate-200 rounded-full overflow-hidden">
-              <div id="timeMeter"
-                   class="h-full rounded-full transition-all duration-300"
-                   style="width:100%; background-color:#34d399;">
-              </div>
-            </div>
-          </div>
+    <!-- 前面：タイマー / メーター / 説明（ここはタップ透過） -->
+    <div class="balloon-ui">
+      <div class="flex items-center justify-between">
+        <div class="font-bold text-slate-700">⏱ タイマー</div>
+        <div class="text-2xl font-black tabular-nums text-slate-900" id="balloonTimer">03:00</div>
+      </div>
 
-          <p class="mt-4 text-center text-slate-700 font-bold">
-            じゅんびができたら <span class="text-pink-600">タップ</span>して わろう！
-          </p>
-
-          <div class="mt-1 text-center text-xs font-bold text-slate-500" id="balloonTypeLabel">（ふうせん）</div>
-
-          <div class="mt-6 flex items-center justify-center">
-            <button id="balloonBtn" class="relative select-none touch-manipulation" aria-label="ふうせんをわる">
-              <div id="balloonWrap" class="relative will-change-transform"></div>
-
-              <div id="tapBadge"
-                   class="absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/90 border text-sm font-bold text-slate-700 shadow">
-                タップ！
-              </div>
-            </button>
-          </div>
-
-          <div class="mt-8 grid gap-3">
-            <button id="balloonRestart" class="w-full rounded-2xl bg-slate-900 text-white py-3 text-lg font-bold shadow active:scale-[0.99]">
-              もういちど
-            </button>
-            <button id="balloonBack" class="w-full rounded-2xl bg-white text-slate-900 py-3 text-lg font-bold border shadow-sm active:scale-[0.99]">
-              もどる
-            </button>
-          </div>
+      <div class="mt-3">
+        <div class="w-full h-4 bg-slate-200 rounded-full overflow-hidden">
+          <div id="timeMeter"
+               class="h-full rounded-full transition-all duration-300"
+               style="width:100%; background-color:#34d399;"></div>
         </div>
       </div>
 
-      <!-- 車：おしまい -->
+      <p class="mt-4 text-center text-slate-700 font-bold relative z-20">
+        じゅんびができたら <span class="text-pink-600">タップ</span>して わろう！
+      </p>
+
+      <div class="mt-1 text-center text-xs font-bold text-slate-500 relative z-20" id="balloonTypeLabel">（ふうせん）</div>
+    </div>
+
+    <!-- ★空白＋風船エリア（縦長に＆中央より下に配置） -->
+<div id="balloonArea" class="relative mt-4 mb-4 h-80 overflow-visible">
+  <button id="balloonBtn"
+          class="absolute left-1/2 top-[62%] -translate-x-1/2 -translate-y-1/2 select-none touch-manipulation"
+          aria-label="ふうせんをわる">
+    <div id="balloonWrap" class="relative will-change-transform"></div>
+
+    <div id="tapBadge"
+         class="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/90 border text-sm font-bold text-slate-700 shadow">
+      タップ！
+    </div>
+  </button>
+</div>
+
+    <!-- 操作ボタン（必ず押せるレイヤー） -->
+    <div class="balloon-actions mt-2 grid gap-3">
+      <button id="balloonRestart" class="w-full rounded-2xl bg-slate-900 text-white py-3 text-lg font-bold shadow active:scale-[0.99]">
+        もういちど
+      </button>
+      <button id="balloonBack" class="w-full rounded-2xl bg-white text-slate-900 py-3 text-lg font-bold border shadow-sm active:scale-[0.99]">
+        もどる
+      </button>
+    </div>
+
+  </div>
+</div>
+
+      <!-- 車：おしまい（紙吹雪キャンバス付き） -->
       <div id="finish-message" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div class="finish-popup bg-white p-12 rounded-3xl shadow-2xl text-center">
+        <div class="finish-popup bg-white p-12 rounded-3xl shadow-2xl text-center relative z-10">
           <span class="text-6xl mb-4 inline-block">🎉</span>
           <p class="text-5xl font-bold text-orange-500">おしまい！</p>
         </div>
-        <!-- ★追加：車側の紙吹雪キャンバス -->
-  <canvas id="carConfettiCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
-</div>
+        <canvas id="carConfettiCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+      </div>
+
     </div>
   </div>
 
@@ -304,14 +364,17 @@
       <img src="./Flogo2.png" alt="ロゴ" class="h-10 w-10 rounded-full object-cover">
       <p class="text-xs text-gray-600 font-semibold">一般社団法人福祉でつながる会</p>
     </div>
-    <button id="contactButton" class="bg-yellow-200 border border-gray-300 shadow-md px-4 py-2 rounded-lg text-sm">
+    <button id="contactButton" type="button"
+            class="bg-yellow-200 border border-gray-300 shadow-md px-4 py-2 rounded-lg text-sm">
       問い合わせはこちら
     </button>
   </div>
 
   <!-- フィードバックフォーム -->
-  <div id="feedbackForm" class="fixed bottom-28 right-4 bg-white border border-gray-300 rounded-lg shadow-xl p-4 w-72 z-50 hidden">
+  <div id="feedbackForm"
+       class="fixed bottom-28 right-4 bg-white border border-gray-300 rounded-lg shadow-xl p-4 w-72 z-50 hidden">
     <h3 class="text-lg mb-3 font-bold">お問い合わせ</h3>
+
     <form id="feedbackSubmitForm">
       <label class="text-sm">アプリを選択（必須）</label>
       <select id="appName" required class="w-full border rounded px-2 py-1 mb-3 text-sm">
@@ -346,14 +409,15 @@
     </div>
   </div>
 
-  <!-- お祝い（body直下） -->
+  <!-- 風船：お祝い（紙吹雪） -->
   <div id="celebrateOverlay" class="hidden fixed inset-0 z-[9999] bg-black/30 backdrop-blur-sm">
     <div class="min-h-full flex items-center justify-center p-4 relative z-10">
       <div class="w-full max-w-md rounded-3xl bg-white shadow-xl p-6 text-center">
         <div class="text-5xl">🎉</div>
         <div class="mt-3 text-2xl font-black text-slate-900">すごい。よくできたね。</div>
         <p class="mt-2 text-slate-600 font-bold">おめでとう！</p>
-        <button id="celebrateClose" class="mt-5 w-full rounded-2xl bg-pink-500 text-white py-3 text-lg font-bold shadow active:scale-[0.99]">
+        <button id="celebrateClose" type="button"
+                class="mt-5 w-full rounded-2xl bg-pink-500 text-white py-3 text-lg font-bold shadow active:scale-[0.99]">
           OK
         </button>
       </div>
@@ -361,7 +425,7 @@
     <canvas id="confettiCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
   </div>
 
-  <!-- 問い合わせフォームJS -->
+  <!-- ===== 問い合わせフォームJS ===== -->
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       const contactButton = document.getElementById("contactButton");
@@ -402,16 +466,14 @@
     });
   </script>
 
-  <!-- アプリ本体JS -->
+  <!-- ===== アプリ本体JS ===== -->
   <script>
     window.addEventListener('DOMContentLoaded', () => {
 
       // ===== DOM =====
-      const timeMeter = document.getElementById('timeMeter');
       const settingsScreen = document.getElementById('settings-screen');
       const mainScreen = document.getElementById('main-screen');
       const balloonScreen = document.getElementById('balloon-screen');
-      const balloonCard = document.getElementById('balloonCard');
 
       const titleInput = document.getElementById('title-input');
       const countInput = document.getElementById('count-input');
@@ -429,8 +491,6 @@
       const photoPreview = document.getElementById('photo-preview');
       const displayPhoto = document.getElementById('display-photo');
 
-      const carConfettiCanvas = document.getElementById('carConfettiCanvas');
-
       // Balloon settings
       const balloonMinutesInput = document.getElementById('balloon-minutes');
       const balloonDec = document.getElementById('balloonDec');
@@ -438,7 +498,9 @@
       const balloonStartBtn = document.getElementById('balloonStartBtn');
 
       // Balloon screen
+      const balloonCard = document.getElementById('balloonCard');
       const balloonTimerEl = document.getElementById('balloonTimer');
+      const timeMeter = document.getElementById('timeMeter');
       const balloonBtn = document.getElementById('balloonBtn');
       const balloonWrap = document.getElementById('balloonWrap');
       const tapBadge = document.getElementById('tapBadge');
@@ -446,10 +508,109 @@
       const balloonBack = document.getElementById('balloonBack');
       const balloonTypeLabel = document.getElementById('balloonTypeLabel');
 
-      // Celebrate
+      // Celebrate overlay (balloon)
       const celebrateOverlay = document.getElementById('celebrateOverlay');
       const celebrateClose = document.getElementById('celebrateClose');
       const confettiCanvas = document.getElementById('confettiCanvas');
+
+      // Car confetti canvas
+      const carConfettiCanvas = document.getElementById('carConfettiCanvas');
+
+      // ===== 紙吹雪：Canvasごとのエンジン（干渉しない） =====
+      class ConfettiEngine {
+        constructor(canvas) {
+          this.canvas = canvas;
+          this.ctx = null;
+          this.raf = 0;
+          this.particles = [];
+        }
+
+        resize() {
+          const c = this.canvas;
+          const dpr = devicePixelRatio || 1;
+          c.width = Math.floor(c.clientWidth * dpr);
+          c.height = Math.floor(c.clientHeight * dpr);
+          this.ctx = c.getContext('2d');
+          this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        burst() {
+          const c = this.canvas;
+          const w = c.clientWidth;
+          const h = c.clientHeight;
+          const count = 140;
+
+          this.particles = [];
+          for (let i = 0; i < count; i++) {
+            this.particles.push({
+              x: w / 2,
+              y: h * 0.35,
+              vx: (Math.random() * 10 - 5),
+              vy: (Math.random() * -10 - 2),
+              g: 0.18 + Math.random() * 0.14,
+              r: 2 + Math.random() * 4,
+              a: 1,
+              spin: (Math.random() * 0.25 - 0.125),
+              rot: Math.random() * Math.PI,
+              c: ['#fb7185','#60a5fa','#34d399','#fbbf24','#a78bfa'][Math.floor(Math.random()*5)]
+            });
+          }
+        }
+
+        start() {
+          this.stop();
+          this.resize();
+          this.burst();
+
+          const draw = () => {
+            const ctx = this.ctx;
+            const c = this.canvas;
+            if (!ctx) return;
+
+            ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
+
+            this.particles.forEach(p => {
+              p.x += p.vx;
+              p.y += p.vy;
+              p.vy += p.g;
+              p.a *= 0.992;
+              p.rot += p.spin;
+
+              ctx.save();
+              ctx.globalAlpha = Math.max(0, p.a);
+              ctx.translate(p.x, p.y);
+              ctx.rotate(p.rot);
+              ctx.fillStyle = p.c;
+              ctx.fillRect(-p.r, -p.r, p.r * 2.2, p.r * 1.4);
+              ctx.restore();
+            });
+
+            this.particles = this.particles.filter(p => p.a > 0.08 && p.y < c.clientHeight + 40);
+            if (this.particles.length > 0) {
+              this.raf = requestAnimationFrame(draw);
+            }
+          };
+
+          this.raf = requestAnimationFrame(draw);
+        }
+
+        stop() {
+          cancelAnimationFrame(this.raf);
+          this.raf = 0;
+        }
+      }
+
+      const balloonConfetti = new ConfettiEngine(confettiCanvas);
+      const carConfetti = new ConfettiEngine(carConfettiCanvas);
+
+      function openCelebrate() {
+        celebrateOverlay.classList.remove('hidden');
+        requestAnimationFrame(() => balloonConfetti.start());
+      }
+      function closeCelebrate() {
+        balloonConfetti.stop();
+        celebrateOverlay.classList.add('hidden');
+      }
 
       // ===== 車 =====
       let remainingCount = 0;
@@ -500,6 +661,7 @@
         let v = parseInt(countInput.value);
         if (v > parseInt(countInput.min)) countInput.value = v - 1;
       });
+
       incrementBtn.addEventListener('click', () => {
         let v = parseInt(countInput.value);
         if (v < parseInt(countInput.max)) countInput.value = v + 1;
@@ -552,18 +714,18 @@
         if (remainingCount > 0) {
           displayTitle.textContent = `あと ${remainingCount}かい`;
         } else {
-  displayTitle.textContent = 'よくできました！';
-  setTimeout(() => {
-    finishMessage.classList.remove('hidden');
+          displayTitle.textContent = 'よくできました！';
+          setTimeout(() => {
+            finishMessage.classList.remove('hidden');
+            requestAnimationFrame(() => carConfetti.start());
+          }, 900);
+        }
 
-    // ★追加：車側の紙吹雪開始
-    requestAnimationFrame(() => runConfetti(carConfettiCanvas));
-  }, 1000);
-}
         car.removeEventListener('click', carClickListener);
       }
 
       resetBtn.addEventListener('click', () => {
+        carConfetti.stop();
         mainScreen.classList.add('hidden');
         balloonScreen.classList.add('hidden');
         settingsScreen.classList.remove('hidden');
@@ -574,7 +736,7 @@
       });
 
       finishMessage.addEventListener('click', () => {
-        stopConfetti(); // ★追加
+        carConfetti.stop();
         finishMessage.classList.add('hidden');
         mainScreen.classList.add('hidden');
         balloonScreen.classList.add('hidden');
@@ -611,7 +773,7 @@
 
       // ★汗レイヤー共通（SVG内に配置）
       function sweatLayerSVG() {
-        // ここは「風船の右上あたり」に置いてあります。位置は後で微調整OK。
+        // 右上あたり。必要なら x,y 微調整OK
         return `
           <g id="sweatLayer" opacity="0">
             <text class="drip d1" x="190" y="95" font-size="32">💧</text>
@@ -622,18 +784,32 @@
       function balloonSVG(type) {
         if (type === 'car') {
           return `
-            <svg width="260" height="300" viewBox="0 0 260 300" class="drop-shadow-xl">
-              <path d="M132 200 C 105 228, 155 238, 122 285" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
-              <path d="M132 184 L116 202 L148 202 Z" fill="#60a5fa"/>
+            <svg width="320" height="360" viewBox="0 0 260 300" class="drop-shadow-xl">
+              <path d="M132 176 C 112 198, 150 212, 124 270" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+              <path d="M132 160 L118 178 L146 178 Z" fill="#60a5fa"/>
               <rect x="55" y="40" rx="48" ry="48" width="150" height="120" fill="#60a5fa"/>
               <path d="M78 98 Q130 36 182 98" fill="#60a5fa" opacity="0.95"/>
               <circle cx="92" cy="156" r="14" fill="#334155" opacity="0.9"/>
               <circle cx="168" cy="156" r="14" fill="#334155" opacity="0.9"/>
               <circle cx="92" cy="156" r="6" fill="#e2e8f0"/>
               <circle cx="168" cy="156" r="6" fill="#e2e8f0"/>
-              <circle cx="104" cy="112" r="8" fill="#0f172a" opacity="0.9"/>
-              <circle cx="156" cy="112" r="8" fill="#0f172a" opacity="0.9"/>
-              <path d="M116 132 Q130 146 144 132" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+              <!-- 顔：通常 -->
+<g data-face="normal">
+  <circle cx="104" cy="112" r="8" fill="#0f172a" opacity="0.9"/>
+  <circle cx="156" cy="112" r="8" fill="#0f172a" opacity="0.9"/>
+  <path d="M116 132 Q130 146 144 132" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+</g>
+
+<!-- 顔：苦しい（初期は非表示） -->
+<g data-face="strain" opacity="0">
+  <!-- X目 -->
+  <path d="M96 104 L112 120" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M96 120 L112 104" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M148 104 L164 120" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M148 120 L164 104" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <!-- くの字口 -->
+  <path d="M116 140 Q130 128 144 140" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+</g>
               <path d="M82 66 h96" stroke="white" stroke-opacity="0.35" stroke-width="12" stroke-linecap="round"/>
               ${sweatLayerSVG()}
             </svg>
@@ -642,9 +818,10 @@
 
         if (type === 'strawberry') {
           return `
-            <svg width="260" height="300" viewBox="0 0 260 300" class="drop-shadow-xl">
-              <path d="M132 200 C 105 228, 155 238, 122 285" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
-              <path d="M132 184 L116 202 L148 202 Z" fill="#f43f5e"/>
+            <svg width="320" height="360" viewBox="0 0 260 300" class="drop-shadow-xl">
+              <path d="M132 232 C 118 250, 145 265, 130 290"
+                   fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+              <path d="M132 218 L122 232 L142 232 Z" fill="#f43f5e"/>
               <path d="M130 44 C 182 44, 214 82, 214 126 C 214 190, 170 214, 130 222 C 90 214, 46 190, 46 126 C 46 82, 78 44, 130 44 Z" fill="#f43f5e"/>
               <path d="M86 50 C 102 34, 116 32, 130 46 C 144 32, 158 34, 174 50 C 156 62, 142 66, 130 62 C 118 66, 104 62, 86 50 Z" fill="#22c55e"/>
               <g fill="#ffe4e6" opacity="0.95">
@@ -656,9 +833,21 @@
                 <ellipse cx="130" cy="182" rx="5" ry="8"/>
               </g>
               <path d="M88 86 C 72 110, 72 146, 88 170" fill="none" stroke="white" stroke-opacity="0.32" stroke-width="14" stroke-linecap="round"/>
-              <circle cx="116" cy="164" r="7" fill="#0f172a" opacity="0.9"/>
-              <circle cx="144" cy="164" r="7" fill="#0f172a" opacity="0.9"/>
-              <path d="M120 178 Q130 188 140 178" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+              <!-- 顔：通常 -->
+<g data-face="normal">
+  <circle cx="116" cy="164" r="7" fill="#0f172a" opacity="0.9"/>
+  <circle cx="144" cy="164" r="7" fill="#0f172a" opacity="0.9"/>
+  <path d="M120 178 Q130 188 140 178" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+</g>
+
+<!-- 顔：苦しい（初期は非表示） -->
+<g data-face="strain" opacity="0">
+  <path d="M106 158 L126 170" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M106 170 L126 158" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M134 158 L154 170" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M134 170 L154 158" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M120 186 Q130 174 140 186" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+</g>
               ${sweatLayerSVG()}
             </svg>
           `;
@@ -666,14 +855,28 @@
 
         // round
         return `
-          <svg width="260" height="300" viewBox="0 0 260 300" class="drop-shadow-xl">
+          <svg width="320" height="360" viewBox="0 0 260 300" class="drop-shadow-xl">
             <path d="M132 200 C 105 228, 155 238, 122 285" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
             <path d="M132 184 L116 202 L148 202 Z" fill="#fb7185"/>
             <path d="M130 30 C 195 30, 230 82, 230 140 C 230 205, 178 240, 130 240 C 82 240, 30 205, 30 140 C 30 82, 65 30, 130 30 Z" fill="#fb7185"/>
             <path d="M92 70 C 70 104, 70 140, 92 176" fill="none" stroke="white" stroke-opacity="0.55" stroke-width="14" stroke-linecap="round"/>
-            <circle cx="108" cy="158" r="9" fill="#0f172a" opacity="0.9"/>
-            <circle cx="152" cy="158" r="9" fill="#0f172a" opacity="0.9"/>
-            <path d="M118 182 Q130 198 142 182" stroke="#0f172a" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <!-- 顔：通常 -->
+<g data-face="normal">
+  <circle cx="108" cy="158" r="9" fill="#0f172a" opacity="0.9"/>
+  <circle cx="152" cy="158" r="9" fill="#0f172a" opacity="0.9"/>
+  <path d="M118 182 Q130 198 142 182" stroke="#0f172a" stroke-width="7" fill="none" stroke-linecap="round"/>
+</g>
+
+<!-- 顔：苦しい（初期は非表示） -->
+<g data-face="strain" opacity="0">
+  <!-- 目：>< っぽい “きゅっ” -->
+  <path d="M98 156 L118 166" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M98 166 L118 156" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M142 156 L162 166" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M142 166 L162 156" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>
+  <!-- 口：くの字 -->
+  <path d="M118 188 Q130 176 142 188" stroke="#0f172a" stroke-width="7" fill="none" stroke-linecap="round"/>
+</g>
             ${sweatLayerSVG()}
           </svg>
         `;
@@ -682,39 +885,32 @@
       // ===== 風船タイマー本体 =====
       let popped = false;
       let balloonRaf = 0;
-      let balloonStartAt = 0;
+
       let balloonDurationMs = 3 * 60 * 1000;
       let currentBalloonType = 'round';
 
-      const BALLOON_START_SCALE = 0.65;
-      const BALLOON_END_SCALE   = 1.85;
+      // ★成長：初期を小さく / 最後は画面いっぱい
+      const BALLOON_START_SCALE = 0.28;
+      const BALLOON_END_SCALE   = 2.65;
 
-      // 終盤演出：30秒/30秒/60秒/60秒（合計180秒）
+      // ★iPhone対策：Date.now基準で経過を取る（タブ停止/復帰にも強い）
+      let balloonStartEpoch = 0;
+      let lastStateSaveAt = 0;
+
+      // ★アクション段階（成長と並行）
+      // 0: 何もなし
+      // 1: 汗1滴
+      // 2: 汗3滴
+      // 3: ぷるぷる
+      // 4: 赤枠
       let stageApplied = -1;
-      const STAGE_TOTAL_MS = 180000;
-
-      function stageFromEndgameElapsed(ms, endgameTotal) {
-  // 5段階:
-  // 0: 何もなし
-  // 1: 汗1滴
-  // 2: 汗いっぱい
-  // 3: ぷるぷる
-  // 4: 赤枠
-
-  const t0 = endgameTotal * (30 / 180);    // 0→1 境界（1/6）
-  const t1 = endgameTotal * (60 / 180);    // 1→2 境界（2/6）
-  const t2 = endgameTotal * (120 / 180);   // 2→3 境界（4/6）
-  // t2以降は 3（ぷるぷる）→ 4（赤枠）にしたいので、赤枠開始をさらに後ろに置く
-  // 「最後まで」を赤枠にするなら、赤枠は終盤の最後の区間（残り 2/6 相当）でON
-  // つまり 4/6〜は ぷるぷる、最後の 2/6 で赤枠
-  const t3 = endgameTotal * (150 / 180);   // 3→4 境界（5/6）※ここだけ新設
-
-  if (ms < t0) return 0;   // ①何もなし
-  if (ms < t1) return 1;   // ②汗1滴
-  if (ms < t2) return 2;   // ③汗いっぱい
-  if (ms < t3) return 3;   // ④ぷるぷる
-  return 4;                // ⑤赤枠
-}
+      function stageFromProgress(p) {
+        if (p < 0.20) return 0;
+        if (p < 0.40) return 1;
+        if (p < 0.60) return 2;
+        if (p < 0.80) return 3;
+        return 4;
+      }
 
       function fmtMMSS(ms) {
         const total = Math.max(0, Math.ceil(ms / 1000));
@@ -724,127 +920,172 @@
       }
 
       function setBalloonScale(scale) {
-        balloonWrap.style.setProperty('--balloonScale', String(scale));
-        if (!balloonWrap.classList.contains('wobble')) {
-          balloonWrap.style.transform = `scale(${scale})`;
-        }
-      }
+  balloonWrap.style.setProperty('--balloonScale', scale);
+
+  const shiftY = Math.max(0, (scale - 1) * 18);
+  balloonWrap.style.setProperty('--balloonShiftY', `${shiftY}px`);
+}
 
       function renderBalloon(type) {
-        balloonWrap.innerHTML = balloonSVG(type);
-        balloonTypeLabel.textContent = typeLabel(type);
-      }
+  balloonWrap.innerHTML = balloonSVG(type);   // ← balloonSpriteを使わない
+  balloonTypeLabel.textContent = typeLabel(type);
+}
 
       function getSweatLayer() {
         return balloonWrap.querySelector('#sweatLayer');
       }
 
-      // ★段階ごとの汗HTML（SVG内）
-      function setSweat(level) {
-  const sweat = getSweatLayer();
-  if (!sweat) return;
+      function setFace(mode) {
+  const normal = balloonWrap.querySelector('[data-face="normal"]');
+  const strain = balloonWrap.querySelector('[data-face="strain"]');
+  if (!normal || !strain) return;
 
-  // level: 0=1滴, 1=いっぱい（3滴）
-  sweat.setAttribute('opacity', '1');
-
-  if (level === 0) {
-    sweat.innerHTML = `<text class="drip d1" x="190" y="95" font-size="32">💧</text>`;
-    return;
+  if (mode === 'strain') {
+    normal.setAttribute('opacity', '0');
+    strain.setAttribute('opacity', '1');
+  } else {
+    normal.setAttribute('opacity', '1');
+    strain.setAttribute('opacity', '0');
   }
-
-  sweat.innerHTML = `
-    <text class="drip d1" x="190" y="95" font-size="32">💧</text>
-    <text class="drip d2" x="168" y="115" font-size="28">💧</text>
-    <text class="drip d3" x="205" y="120" font-size="28">💧</text>
-  `;
 }
+
+      // stage: 0=1滴, 1=3滴（UI段階に合わせて使う）
+      function setSweat(stage) {
+        const sweat = getSweatLayer();
+        if (!sweat) return;
+
+        if (stage < 0) {
+          sweat.setAttribute('opacity', '0');
+          sweat.innerHTML = `<text class="drip d1" x="190" y="95" font-size="32">💧</text>`;
+          return;
+        }
+
+        sweat.setAttribute('opacity', '1');
+
+        if (stage === 0) {
+          sweat.innerHTML = `<text class="drip d1" x="190" y="95" font-size="32">💧</text>`;
+          return;
+        }
+
+        sweat.innerHTML = `
+          <text class="drip d1" x="190" y="95" font-size="32">💧</text>
+          <text class="drip d2" x="168" y="115" font-size="28">💧</text>
+          <text class="drip d3" x="205" y="120" font-size="28">💧</text>
+        `;
+      }
+
       function clearActions() {
-  const sweat = getSweatLayer();
-  if (sweat) {
-    sweat.setAttribute('opacity', '0');
-    sweat.innerHTML = `<text class="drip d1" x="190" y="95" font-size="32">💧</text>`;
-  }
+  setSweat(-1);
   balloonWrap.classList.remove('wobble');
-  balloonWrap.classList.remove('warning');
   balloonCard.classList.remove('alert-frame');
+  setFace('normal'); // ★追加
 }
 
       function resetBalloonVisual() {
         popped = false;
+        stageApplied = -1;
+
         tapBadge.classList.remove('hidden');
+        balloonWrap.style.transform = ''; // ★popで付いたinline transformを消す
 
         balloonWrap.style.transition = '';
         balloonWrap.style.opacity = '1';
         balloonWrap.style.filter = 'none';
 
-        stageApplied = -1;
         clearActions();
-
         setBalloonScale(BALLOON_START_SCALE);
         balloonTimerEl.textContent = fmtMMSS(balloonDurationMs);
 
-        // メーター初期化
         timeMeter.style.width = '100%';
         timeMeter.style.backgroundColor = '#34d399';
       }
 
       function applyStage(stage) {
-        if (stage === stageApplied) return;
-        stageApplied = stage;
+  if (stage === stageApplied) return;
+  stageApplied = stage;
 
-        // いったん外してから付け直し
-        clearActions();
+  clearActions();
 
-        // 0: 何もなし → 汗は出さない
-if (stage >= 1) setSweat(stage - 1); // 1→汗1滴(0), 2→汗いっぱい(1)
+  // 1: 汗1滴
+  if (stage === 1) setSweat(0);
 
-// ④ぷるぷる（stage 3 から）
-if (stage >= 3) balloonWrap.classList.add('wobble');
+  // 2: 汗3滴
+  if (stage === 2) setSweat(1);
 
-// ⑤赤枠（stage 4 から）
-if (stage >= 4) balloonCard.classList.add('alert-frame');
+  // 3: ぷるぷる
+  if (stage >= 3) {
+    balloonWrap.classList.add('wobble');
+    setFace('strain');
+  }
+
+  // 4: 赤枠（カード外枠）
+  if (stage >= 4) {
+    balloonCard.classList.add('alert-frame');
+    setFace('strain');
+  }
+}
+
+      function easeInOutCubic(p) {
+        return (p < 0.5)
+          ? 4 * p * p * p
+          : 1 - Math.pow(-2 * p + 2, 3) / 2;
+      }
+
+      function saveBalloonState(running) {
+        // 1秒に1回だけ保存（負荷軽減）
+        const now = Date.now();
+        if (now - lastStateSaveAt < 1000) return;
+        lastStateSaveAt = now;
+
+        sessionStorage.setItem('balloonState', JSON.stringify({
+          running: running,
+          popped: popped,
+          startEpoch: balloonStartEpoch,
+          durationMs: balloonDurationMs,
+          type: currentBalloonType
+        }));
+      }
+
+      function clearBalloonState() {
+        sessionStorage.removeItem('balloonState');
       }
 
       function startBalloonGrowth() {
         cancelAnimationFrame(balloonRaf);
-        balloonStartAt = performance.now();
 
-        const tick = (now) => {
-          const elapsed = now - balloonStartAt;
-          const t = Math.min(1, elapsed / balloonDurationMs);
+        const tick = () => {
+          const nowEpoch = Date.now();
+          const elapsed = nowEpoch - balloonStartEpoch;
 
-          // ふんわりeaseOut
-          const eased = 1 - Math.pow(1 - t, 3);
-          const scale = BALLOON_START_SCALE + (BALLOON_END_SCALE - BALLOON_START_SCALE) * eased;
+          const pRaw = balloonDurationMs > 0 ? elapsed / balloonDurationMs : 1;
+          const p = Math.min(1, Math.max(0, pRaw));
 
-          const remaining = balloonDurationMs - elapsed;
+          // タイマー表示
+          const remaining = Math.max(0, balloonDurationMs - elapsed);
           balloonTimerEl.textContent = fmtMMSS(remaining);
 
-          // 視覚メーター更新
-          const progress = Math.max(0, 1 - elapsed / balloonDurationMs);
+          // 視覚メーター（残り割合）
+          const progress = Math.max(0, 1 - p);
           timeMeter.style.width = `${progress * 100}%`;
           if (progress > 0.66) timeMeter.style.backgroundColor = '#34d399';
           else if (progress > 0.33) timeMeter.style.backgroundColor = '#fbbf24';
           else timeMeter.style.backgroundColor = '#ef4444';
 
+          // 成長（全時間で気持ちよく伸びる）
+          const eased = easeInOutCubic(p);
+          const scale = BALLOON_START_SCALE + (BALLOON_END_SCALE - BALLOON_START_SCALE) * eased;
           setBalloonScale(scale);
 
-          // 終盤演出（残り時間ベース：最後の180秒、短い設定なら全時間）
-          const endgameTotal = Math.min(balloonDurationMs, STAGE_TOTAL_MS);
-          const endgameStartElapsed = balloonDurationMs - endgameTotal;
+          // アクション（成長と並行）
+          applyStage(stageFromProgress(p));
 
-          if (elapsed < endgameStartElapsed) {
-            if (stageApplied !== -1) {
-              stageApplied = -1;
-              clearActions();
-            }
-          } else {
-            const endgameElapsed = elapsed - endgameStartElapsed;
-            const stageWanted = stageFromEndgameElapsed(endgameElapsed, endgameTotal);
-            applyStage(stageWanted);
+          // 状態保存（途中でSafariが落ちても復帰）
+          saveBalloonState(true);
+
+          // 継続
+          if (!popped) {
+            balloonRaf = requestAnimationFrame(tick);
           }
-
-          balloonRaf = requestAnimationFrame(tick);
         };
 
         balloonRaf = requestAnimationFrame(tick);
@@ -861,8 +1102,6 @@ if (stage >= 4) balloonCard.classList.add('alert-frame');
         popped = true;
 
         tapBadge.classList.add('hidden');
-
-        // 割れる直前にタイマー停止
         cancelAnimationFrame(balloonRaf);
 
         // 演出停止
@@ -870,105 +1109,15 @@ if (stage >= 4) balloonCard.classList.add('alert-frame');
 
         // さっと縮んで消える
         balloonWrap.style.transition = 'transform 220ms ease, opacity 220ms ease, filter 220ms ease';
-        balloonWrap.style.transform = `scale(${BALLOON_START_SCALE})`;
+        setBalloonScale(BALLOON_START_SCALE);
         balloonWrap.style.opacity = '0';
         balloonWrap.style.filter = 'blur(2px)';
 
+        // ここで状態クリア（完了）
+        clearBalloonState();
+
         setTimeout(() => { openCelebrate(); }, 180);
       }
-
-      // ===== 紙吹雪（共通化） =====
-let confettiRaf = 0;
-let confettiParticles = [];
-
-function setupConfetti(canvas) {
-  const dpr = devicePixelRatio || 1;
-  canvas.width = Math.floor(canvas.clientWidth * dpr);
-  canvas.height = Math.floor(canvas.clientHeight * dpr);
-
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  return ctx;
-}
-
-function makeConfettiBurst(canvas) {
-  confettiParticles = [];
-  const count = 140;
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
-
-  for (let i = 0; i < count; i++) {
-    confettiParticles.push({
-      x: w / 2,
-      y: h * 0.35,
-      vx: (Math.random() * 10 - 5),
-      vy: (Math.random() * -10 - 2),
-      g: 0.18 + Math.random() * 0.14,
-      r: 2 + Math.random() * 4,
-      a: 1,
-      spin: (Math.random() * 0.25 - 0.125),
-      rot: Math.random() * Math.PI,
-      c: ['#fb7185','#60a5fa','#34d399','#fbbf24','#a78bfa'][Math.floor(Math.random()*5)]
-    });
-  }
-}
-
-function runConfetti(canvas) {
-  const ctx = setupConfetti(canvas);
-  makeConfettiBurst(canvas);
-
-  cancelAnimationFrame(confettiRaf);
-
-  const draw = () => {
-    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-
-    confettiParticles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += p.g;
-      p.a *= 0.992;
-      p.rot += p.spin;
-
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, p.a);
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.fillStyle = p.c;
-      ctx.fillRect(-p.r, -p.r, p.r * 2.2, p.r * 1.4);
-      ctx.restore();
-    });
-
-    confettiParticles = confettiParticles.filter(p => p.a > 0.08 && p.y < canvas.clientHeight + 40);
-    if (confettiParticles.length > 0) confettiRaf = requestAnimationFrame(draw);
-  };
-
-  confettiRaf = requestAnimationFrame(draw);
-}
-
-function stopConfetti() {
-  cancelAnimationFrame(confettiRaf);
-}
-
-// ===== 風船：お祝い（復活） =====
-function openCelebrate() {
-  // 風船割った後のポップアップを表示
-  celebrateOverlay.classList.remove('hidden');
-
-  // CanvasのサイズがDOM反映されてから紙吹雪開始
-  requestAnimationFrame(() => runConfetti(confettiCanvas));
-}
-
-function closeCelebrate() {
-  // 風船側の紙吹雪停止＆ポップアップ非表示
-  stopConfetti();
-  celebrateOverlay.classList.add('hidden');
-}
-
-// リサイズ時にキャンバスだけリセット（紙吹雪を続けたい場合にも対応）
-function resizeConfetti() {
-  setupConfetti(confettiCanvas);
-}
-
 
       // ===== 風船：開始/操作 =====
       balloonStartBtn.addEventListener('click', () => {
@@ -981,28 +1130,73 @@ function resizeConfetti() {
         openBalloonScreen();
         renderBalloon(currentBalloonType);
         resetBalloonVisual();
+
+        // 開始時刻を保存（Date.now基準）
+        balloonStartEpoch = Date.now();
+        lastStateSaveAt = 0;
+
+        // state保存
+        sessionStorage.setItem('balloonState', JSON.stringify({
+          running: true,
+          popped: false,
+          startEpoch: balloonStartEpoch,
+          durationMs: balloonDurationMs,
+          type: currentBalloonType
+        }));
+
         startBalloonGrowth();
       });
 
       balloonBtn.addEventListener('click', popBalloon);
 
       balloonRestart.addEventListener('click', () => {
+        closeCelebrate();
         renderBalloon(currentBalloonType);
         resetBalloonVisual();
+
+        balloonStartEpoch = Date.now();
+        lastStateSaveAt = 0;
+
+        sessionStorage.setItem('balloonState', JSON.stringify({
+          running: true,
+          popped: false,
+          startEpoch: balloonStartEpoch,
+          durationMs: balloonDurationMs,
+          type: currentBalloonType
+        }));
+
         startBalloonGrowth();
       });
 
       balloonBack.addEventListener('click', () => {
         cancelAnimationFrame(balloonRaf);
         closeCelebrate();
+        clearBalloonState();
         balloonScreen.classList.add('hidden');
         settingsScreen.classList.remove('hidden');
       });
 
       celebrateClose.addEventListener('click', closeCelebrate);
 
+      // ===== 風船：復帰（iPhoneで途中で戻る問題対策） =====
+      try {
+        const saved = JSON.parse(sessionStorage.getItem('balloonState') || 'null');
+        if (saved && saved.running && saved.startEpoch && saved.durationMs && !saved.popped) {
+          balloonDurationMs = saved.durationMs;
+          currentBalloonType = saved.type || 'round';
+          balloonStartEpoch = saved.startEpoch;
+
+          openBalloonScreen();
+          renderBalloon(currentBalloonType);
+          resetBalloonVisual();
+          startBalloonGrowth();
+        }
+      } catch (e) {}
+
+      // ===== 画面リサイズで紙吹雪Canvasを追従 =====
       window.addEventListener('resize', () => {
-        if (!celebrateOverlay.classList.contains('hidden')) resizeConfetti();
+        if (!celebrateOverlay.classList.contains('hidden')) balloonConfetti.resize();
+        if (!finishMessage.classList.contains('hidden')) carConfetti.resize();
       });
 
     });
